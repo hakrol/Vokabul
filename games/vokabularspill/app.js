@@ -224,6 +224,7 @@ const el = {
     progress: document.getElementById("progress"),
     next: document.getElementById("next"),
     restart: document.getElementById("restart"),
+    endEarly: document.getElementById("endEarly"),
     togglePractice: document.getElementById("togglePractice"),
     summary: document.getElementById("summary"),
     summaryText: document.getElementById("summaryText"),
@@ -243,6 +244,7 @@ const state = {
     wrongItems: [],
     locked: false,
     mode: "main",
+    progressCount: null,
 };
 
 function setScreen(screen) {
@@ -273,7 +275,11 @@ function updateStats() {
     el.correct.textContent = String(state.correct);
     el.wrong.textContent = String(state.wrong);
     const total = state.mode === "main" ? TOTAL_QUESTIONS : state.order.length;
-    el.progress.textContent = `${Math.min(state.index + 1, total)}/${total}`;
+    const progressValue =
+        state.progressCount === null
+            ? Math.min(state.index + 1, total)
+            : Math.min(state.progressCount, total);
+    el.progress.textContent = `${progressValue}/${total}`;
 }
 
 function finishRoundStats() {
@@ -324,6 +330,7 @@ function disableChoices() {
 
 function showQuestion() {
     state.locked = false;
+    state.progressCount = null;
     el.details.classList.remove("show");
     el.next.disabled = true;
     setFeedback("", "");
@@ -421,8 +428,12 @@ function renderPracticeList() {
 
 function endGame() {
     state.index = TOTAL_QUESTIONS;
+    state.progressCount = TOTAL_QUESTIONS;
     updateStats();
     finishRoundStats();
+    state.locked = true;
+    disableChoices();
+    if (el.endEarly) el.endEarly.disabled = true;
     el.summary.classList.add("show");
     el.practice.classList.add("show");
     el.togglePractice.disabled = false;
@@ -431,6 +442,27 @@ function endGame() {
     el.summaryText.textContent =
         `Du svarte riktig ${state.correct} av ${TOTAL_QUESTIONS}. ` +
         `Poeng: ${state.score}. Feil: ${state.wrong}.`;
+    renderPracticeList();
+}
+
+function endGameEarly() {
+    if (state.mode !== "main") return;
+    const answered = state.correct + state.wrong;
+    state.progressCount = answered;
+    updateStats();
+    finishRoundStats();
+    state.locked = true;
+    disableChoices();
+    el.next.disabled = true;
+    if (el.endEarly) el.endEarly.disabled = true;
+    el.summary.classList.add("show");
+    el.practice.classList.add("show");
+    el.togglePractice.disabled = false;
+    el.togglePractice.textContent = "Skjul \u00f8velsesliste";
+    el.practiceStart.disabled = state.wrongItems.length === 0;
+    el.summaryText.textContent =
+        `Du avsluttet runden etter ${answered} av ${TOTAL_QUESTIONS} ord. ` +
+        `Riktig: ${state.correct}. Feil: ${state.wrong}. Poeng: ${state.score}.`;
     renderPracticeList();
 }
 
@@ -444,7 +476,9 @@ function startPractice() {
     state.mode = "practice";
     state.order = shuffle(state.wrongItems);
     state.index = 0;
+    state.progressCount = null;
     el.details.classList.remove("show");
+    if (el.endEarly) el.endEarly.disabled = true;
     setFeedback("\u00d8velsesrunde startet.", "ok");
     showQuestion();
 }
@@ -461,6 +495,8 @@ function startNewGame() {
     state.wrong = 0;
     state.wrongItems = [];
     state.locked = false;
+    state.progressCount = null;
+    if (el.endEarly) el.endEarly.disabled = false;
     el.summary.classList.remove("show");
     el.practice.classList.remove("show");
     el.togglePractice.disabled = true;
@@ -491,6 +527,9 @@ document.addEventListener("DOMContentLoaded", () => {
     el.restart.addEventListener("click", () => {
         if (el.screenStart) setScreen(el.screenStart);
     });
+    if (el.endEarly) {
+        el.endEarly.addEventListener("click", endGameEarly);
+    }
     el.togglePractice.addEventListener("click", togglePracticeList);
     el.practiceStart.addEventListener("click", startPractice);
 });
