@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="no">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Vokabularspill</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo">V</div>
+        <div>
+          <div class="title">Vokabularspill</div>
+          <div class="subtitle">Bygg ordforråd med repetisjon</div>
+        </div>
+      </div>
+
+      <div class="stats">
+        <div class="pill"><span class="k">Streak</span> <span id="streak">0</span></div>
+        <div class="pill"><span class="k">Riktig</span> <span id="riktig">0</span></div>
+        <div class="pill"><span class="k">Feil</span> <span id="feil">0</span></div>
+      </div>
+    </header>
+
+    <main class="card">
+      <section class="prompt">
+        <div class="modeRow">
+          <div class="mode">
+            <label>
+              <input type="radio" name="retning" value="no-en" checked />
+              Norsk → Engelsk
+            </label>
+            <label>
+              <input type="radio" name="retning" value="en-no" />
+              Engelsk → Norsk
+            </label>
+          </div>
+
+          <div class="difficulty">
+            <label for="nivaa">Fokus</label>
+            <select id="nivaa">
+              <option value="mix" selected>Blandet (anbefalt)</option>
+              <option value="new">Nye/Usikre ord</option>
+              <option value="review">Repetisjon</option>
+              <option value="mastered">Mestret</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="questionBox">
+          <div class="label" id="label">Hva betyr dette?</div>
+          <div class="question" id="sporsmal">—</div>
+        </div>
+
+        <div class="choices" id="valg"></div>
+
+        <div class="feedback" id="feedback" aria-live="polite"></div>
+
+        <div class="details" id="details">
+          <div class="detailRow">
+            <div class="detailTitle">Forklaring</div>
+            <div class="detailText" id="forklaring">—</div>
+          </div>
+          <div class="detailRow">
+            <div class="detailTitle">Eksempel</div>
+            <div class="detailText" id="eksempel">—</div>
+          </div>
+          <div class="detailRow">
+            <div class="detailTitle">Status</div>
+            <div class="detailText" id="status">—</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="controls">
+        <button id="btnNeste" class="primary" type="button">Neste</button>
+        <button id="btnHopp" class="ghost" type="button">Hopp over</button>
+        <button id="btnTilbakestill" class="danger" type="button">Nullstill progresjon</button>
+      </section>
+
+      <section class="footer">
+        <div class="small">
+          Tips: Legg inn egne ord i <code>app.js</code> (listen <code>ORD</code>).
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

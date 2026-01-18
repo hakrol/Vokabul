@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="no">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Synonymspill</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="app">
+    <header class="hero">
+      <div>
+        <div class="hero-title">Synonymspill</div>
+        <div class="hero-subtitle">Finn tre synonymer per oppgave.</div>
+      </div>
+      <div class="hero-actions">
+        <div class="hero-score">
+          <div>Rekord: <strong id="highScore">0</strong></div>
+        </div>
+        <a class="hub-link" href="../../index.html">Spillhub</a>
+      </div>
+    </header>
+
+    <section class="screen screen-start" id="screenStart">
+      <div class="card">
+        <div class="card-title">Start en ny runde</div>
+        <p class="card-text">
+          En runde har 10 oppgaver. Du har maks 3 innleveringer per oppgave.
+          Finner du 3 riktige, f&aring;r du bonuspoeng.
+        </p>
+        <div class="settings">
+          <label for="difficulty">Vanskelighetsgrad</label>
+          <select id="difficulty">
+            <option value="easy">Enkel</option>
+            <option value="medium">Middels</option>
+            <option value="hard">Vanskelig</option>
+          </select>
+        </div>
+        <div class="start-stats">
+          <div class="start-pill">
+            <div class="k">Siste poeng</div>
+            <div class="v" id="lastScore">0</div>
+          </div>
+          <div class="start-pill">
+            <div class="k">Perfekte oppgaver</div>
+            <div class="v" id="lastPerfect">0</div>
+          </div>
+        </div>
+        <button class="btn primary" id="startGame">Start runde</button>
+      </div>
+    </section>
+
+    <section class="screen screen-game hidden" id="screenGame">
+      <div class="card">
+        <div class="game-top">
+          <div class="progress">
+            <span id="taskLabel">Oppgave 1 av 10</span>
+            <span class="mode" id="modeLabel">Runde</span>
+          </div>
+          <div class="points" id="pointsPanel">
+            <span>Poeng: <strong id="score">0</strong></span>
+            <span>Bonus: <strong class="bonus-value" id="bonus">0</strong></span>
+            <span class="bonus-badge hidden" id="bonusBadge">3 av 3!</span>
+          </div>
+        </div>
+
+        <div class="info-grid">
+          <div class="target">
+            <div class="label">Ord i fokus</div>
+            <div class="target-word" id="targetWord">-</div>
+          </div>
+
+          <div class="hints class-box hidden" id="hints">
+            <div class="hint-row">
+              <span class="hint-label">Ordklasse</span>
+              <button class="hint-chip" id="classButton" type="button">Adjektiv</button>
+            </div>
+            <div class="class-info hidden" id="classInfo"></div>
+          </div>
+        </div>
+
+        <div class="sentence">
+          <div class="label">Setning</div>
+          <div class="sentence-text" id="sentenceText">-</div>
+        </div>
+
+        <div class="answer-box">
+          <div class="input-row">
+            <input
+              id="answerInput"
+              type="text"
+              placeholder="Skriv et synonym"
+              autocomplete="off"
+            />
+            <button class="btn" id="submitAnswer">Legg til</button>
+          </div>
+          <div class="feedback" id="feedback" aria-live="polite"></div>
+        </div>
+
+        <div class="attempts">
+          <div class="label">Innleveringer</div>
+          <ul class="attempt-list" id="attemptList"></ul>
+        </div>
+
+        <div class="game-actions">
+          <button class="btn" id="skipTask" disabled>G&aring; videre</button>
+          <button class="btn danger" id="abortGame">Avslutt runde</button>
+        </div>
+
+        <div class="task-summary hidden" id="taskSummary">
+          <div class="summary-title" id="taskSummaryTitle">Oppsummering</div>
+          <div class="summary-text" id="taskSummaryText">-</div>
+          <div class="summary-block">
+            <div>
+              <div class="label">Riktige</div>
+              <div class="pill-list" id="correctList"></div>
+            </div>
+            <div>
+              <div class="label">Manglet</div>
+              <div class="pill-list" id="missingList"></div>
+            </div>
+          </div>
+          <button class="btn primary" id="nextTask">Neste oppgave</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen screen-round hidden" id="screenRound">
+      <div class="card">
+        <div class="card-title">Runde ferdig</div>
+        <p class="card-text" id="roundSummary">-</p>
+        <div class="round-grid">
+          <div>
+            <div class="label">Perfekte oppgaver</div>
+            <div class="big-number" id="perfectCount">0</div>
+          </div>
+          <div>
+            <div class="label">Ord &aring; &oslash;ve mer p&aring;</div>
+            <div class="pill-list" id="practiceList"></div>
+          </div>
+        </div>
+        <div class="round-actions">
+          <button class="btn primary" id="playAgain">Spill igjen</button>
+          <button class="btn" id="practiceMode">&Oslash;v mer</button>
+          <button class="btn hidden" id="backToSummary">Tilbake</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="confetti" id="confetti"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="no">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Kontinuum</title>
+  <link rel="stylesheet" href="tailwind.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="min-h-screen bg-slate-950 text-slate-100">
+  <main class="mx-auto w-full max-w-5xl px-4 py-8">
+    <header class="mb-8 flex flex-wrap items-center justify-between gap-4">
+      <div>
+        <h1 class="text-3xl font-semibold tracking-tight">Kontinuum</h1>
+        <p class="text-slate-400">Sorter ord etter intensitet mellom to ankere.</p>
+      </div>
+      <div class="flex items-center gap-3">
+        <div class="rounded-full border border-slate-800 bg-slate-900 px-4 py-2 text-sm text-slate-300">
+          Rekord: <strong id="bestStat">0</strong>
+        </div>
+        <a
+          class="rounded-full border border-slate-700 px-4 py-2 text-sm font-semibold text-slate-100 transition hover:border-slate-500"
+          href="../../index.html"
+        >
+          Spillhub
+        </a>
+      </div>
+    </header>
+
+    <section id="app"></section>
+  </main>
+
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,18 @@
+body {
+  font-family: "Trebuchet MS", "Lucida Sans Unicode", sans-serif;
+}
+
+.track-line {
+  position: relative;
+}
+
+.track-line::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 2px;
+  background: linear-gradient(90deg, #38bdf8, #f97316);
+  opacity: 0.5;
+}

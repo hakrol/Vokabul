@@ -1,0 +1,78 @@
+:root {
+  --bg: #f3efe6;
+  --card: #ffffff;
+  --ink: #1f1b16;
+  --muted: #6e6256;
+  --accent: #2c7a7b;
+  --line: #e2d7c7;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Trebuchet MS", "Lucida Sans Unicode", sans-serif;
+  background:
+    radial-gradient(circle at top, #efe4d2, transparent 60%),
+    linear-gradient(180deg, var(--bg), #f8f5ee 70%);
+  color: var(--ink);
+  min-height: 100vh;
+  padding: 28px 16px 48px;
+}
+
+.hub {
+  max-width: 980px;
+  margin: 0 auto;
+  display: grid;
+  gap: 24px;
+}
+
+.hero-title {
+  font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif;
+  font-size: 36px;
+  font-weight: 700;
+}
+
+.hero-subtitle {
+  color: var(--muted);
+  margin-top: 6px;
+}
+
+.grid {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 14px 30px rgba(31, 27, 22, 0.08);
+  display: grid;
+  gap: 12px;
+}
+
+.card-title {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.card-text {
+  color: var(--muted);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.btn {
+  justify-self: start;
+  text-decoration: none;
+  background: var(--accent);
+  color: #fff;
+  border-radius: 12px;
+  padding: 10px 16px;
+  font-weight: 700;
+}

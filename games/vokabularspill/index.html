@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="no">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Vokabularspill</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo">V</div>
+        <div>
+          <div class="title">Vokabularspill</div>
+          <div class="subtitle">Bygg ordforr&aring;d med aktiv gjetting</div>
+        </div>
+      </div>
+      <a class="hub-link" href="../../index.html">Spillhub</a>
+    </header>
+
+    <section class="screen screen-start" id="screenStart">
+      <div class="card start-card">
+        <div class="card-title">Start nytt spill</div>
+        <p class="card-text">
+          20 ord per runde. Bygg ordforr&aring;d og f&aring; oversikt over ordene du b\u00f8r \u00f8ve mer p&aring;.
+        </p>
+        <div class="start-stats">
+          <div class="start-pill">
+            <div class="k">Beste poeng</div>
+            <div class="v" id="bestScore">0</div>
+          </div>
+          <div class="start-pill">
+            <div class="k">Siste poeng</div>
+            <div class="v" id="lastScore">0</div>
+          </div>
+          <div class="start-pill">
+            <div class="k">Sist riktig</div>
+            <div class="v" id="lastCorrect">0</div>
+          </div>
+          <div class="start-pill">
+            <div class="k">Sist feil</div>
+            <div class="v" id="lastWrong">0</div>
+          </div>
+        </div>
+        <button id="startGame" class="primary" type="button">Start spill</button>
+      </div>
+    </section>
+
+    <section class="screen screen-game hidden" id="screenGame">
+      <div class="stats">
+        <div class="pill"><span class="k">Poeng</span> <span id="score">0</span></div>
+        <div class="pill"><span class="k">Riktig</span> <span id="correct">0</span></div>
+        <div class="pill"><span class="k">Feil</span> <span id="wrong">0</span></div>
+        <div class="pill"><span class="k">Ord</span> <span id="progress">0/20</span></div>
+      </div>
+
+      <main class="card">
+        <section class="prompt">
+          <div class="label">Hva betyr ordet?</div>
+          <div class="question" id="word">-</div>
+        </section>
+
+        <section class="choices" id="choices"></section>
+
+        <div class="feedback" id="feedback" aria-live="polite"></div>
+
+        <section class="details" id="details">
+          <div class="detailRow">
+            <div class="detailTitle">Riktig forklaring</div>
+            <div class="detailText" id="correctExplanation">-</div>
+          </div>
+          <div class="detailRow">
+            <div class="detailTitle">Eksempel</div>
+            <div class="detailText" id="examples">-</div>
+          </div>
+        </section>
+
+        <section class="controls">
+          <button id="next" class="primary" type="button" disabled>Neste</button>
+          <button id="restart" class="ghost" type="button">Start nytt spill</button>
+          <button id="togglePractice" class="ghost" type="button" disabled>Vis &oslash;velsesliste</button>
+        </section>
+
+        <section class="summary" id="summary">
+          <div class="summaryTitle">Spill ferdig</div>
+          <div class="summaryText" id="summaryText">-</div>
+          <button id="practiceStart" class="primary" type="button" disabled>Start &oslash;velsesrunde</button>
+        </section>
+
+        <section class="practice" id="practice">
+          <div class="detailTitle">&Oslash;velsesliste</div>
+          <div class="practiceList" id="practiceList"></div>
+        </section>
+      </main>
+    </section>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
