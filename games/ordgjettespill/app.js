@@ -64,7 +64,8 @@
     medium: [
         {
             ord: "metronom",
-            beskrivelse: "Et apparat som holder jevn takt under musikk\u00f8ving",
+            beskrivelse:
+                "Et apparat som holder jevn takt under musikk\u00f8ving",
             forsteBokstav: "M",
         },
         {
@@ -142,7 +143,8 @@
         },
         {
             ord: "spekter",
-            beskrivelse: "Omr\u00e5de av b\u00f8lgelengder, for eksempel av lys",
+            beskrivelse:
+                "Omr\u00e5de av b\u00f8lgelengder, for eksempel av lys",
             forsteBokstav: "S",
         },
         {
@@ -152,7 +154,8 @@
         },
         {
             ord: "resonans",
-            beskrivelse: "Forsterkning av svingninger n\u00e5r frekvenser passer",
+            beskrivelse:
+                "Forsterkning av svingninger n\u00e5r frekvenser passer",
             forsteBokstav: "R",
         },
         {
@@ -247,7 +250,6 @@ const closeMasteredWordsModalBtn = document.querySelector(
 );
 const successRateInfoBtn = document.querySelector("#successRateInfo");
 const masteredWordsInfoBtn = document.querySelector("#masteredWordsInfo");
-
 
 const state = {
     order: [],
@@ -500,9 +502,7 @@ function renderSuccessRateChart(rates) {
             '<div class="chart-empty">Spill minst en runde for \u00e5 se utvikling.</div>';
         return;
     }
-    const clampedRates = rates.map((rate) =>
-        Math.min(Math.max(rate, 0), 100),
-    );
+    const clampedRates = rates.map((rate) => Math.min(Math.max(rate, 0), 100));
     const width = 100;
     const height = 120;
     const paddingX = 6;
@@ -787,5 +787,3 @@ answerInput.addEventListener("keydown", (event) => {
 });
 
 updateStartScreen();
-
-
