@@ -4,6 +4,9 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Vokabularspill</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -16,7 +19,15 @@
           <div class="subtitle">Bygg ordforr&aring;d med aktiv gjetting</div>
         </div>
       </div>
-      <a class="hub-link" href="../../index.html">Spillhub</a>
+      <div class="top-actions">
+        <section class="controls controls-top game-only">
+          <button id="restart" class="ghost" type="button">Start nytt spill</button>
+          <button id="endEarly" class="ghost" type="button">Avslutt runde</button>
+          <button id="backToStart" class="ghost" type="button">Til startsiden</button>
+        </section>
+        <button id="togglePractice" class="ghost" type="button" disabled>Vis &oslash;velsesliste</button>
+        <a class="hub-link" href="../../index.html">Spillhub</a>
+      </div>
     </header>
 
     <section class="screen screen-start" id="screenStart">
@@ -42,8 +53,17 @@
             <div class="k">Sist feil</div>
             <div class="v" id="lastWrong">0</div>
           </div>
+          <div class="start-pill">
+            <div class="k">Ord i &oslash;velsesliste</div>
+            <div class="v" id="practiceCount">0</div>
+          </div>
         </div>
         <button id="startGame" class="primary" type="button">Start spill</button>
+        <div class="practice-cta">
+          <button id="startPracticeFromStart" class="ghost" type="button">Øv på feil ord (0)</button>
+          <div class="practice-empty" id="practiceEmpty">Alle ord mestret! 🎉</div>
+        </div>
+        <div class="practice-summary" id="practiceSummary"></div>
       </div>
     </section>
 
@@ -53,6 +73,7 @@
         <div class="pill"><span class="k">Riktig</span> <span id="correct">0</span></div>
         <div class="pill"><span class="k">Feil</span> <span id="wrong">0</span></div>
         <div class="pill"><span class="k">Ord</span> <span id="progress">0/20</span></div>
+        <div class="pill mode-pill" id="modePill" hidden><span class="k">Modus</span> <span>Øvelse</span></div>
       </div>
 
       <main class="card">
@@ -76,11 +97,8 @@
           </div>
         </section>
 
-        <section class="controls">
+        <section class="controls controls-bottom">
           <button id="next" class="primary" type="button" disabled>Neste</button>
-          <button id="restart" class="ghost" type="button">Start nytt spill</button>
-          <button id="endEarly" class="ghost" type="button">Avslutt runde</button>
-          <button id="togglePractice" class="ghost" type="button" disabled>Vis &oslash;velsesliste</button>
         </section>
 
         <section class="summary" id="summary">
@@ -88,12 +106,22 @@
           <div class="summaryText" id="summaryText">-</div>
           <button id="practiceStart" class="primary" type="button" disabled>Start &oslash;velsesrunde</button>
         </section>
-
-        <section class="practice" id="practice">
-          <div class="detailTitle">&Oslash;velsesliste</div>
-          <div class="practiceList" id="practiceList"></div>
-        </section>
       </main>
+    </section>
+
+    <section class="screen screen-practice hidden" id="screenPractice">
+      <div class="card practice-card">
+        <div class="card-title">&Oslash;velsesliste</div>
+        <p class="card-text">
+          Her ligger ordene du har bommet p&aring;. Fjern ord du har mestret, eller start en ny &oslash;velsesrunde.
+        </p>
+        <div class="practice-actions">
+          <button id="practicePlay" class="primary" type="button" disabled>Start &oslash;velsesrunde med disse ordene</button>
+          <button id="practiceReset" class="ghost" type="button">Nullstill liste</button>
+          <button id="practiceBack" class="ghost" type="button">Til startsiden</button>
+        </div>
+        <div class="practiceList" id="practiceList"></div>
+      </div>
     </section>
   </div>
 

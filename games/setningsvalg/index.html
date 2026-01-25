@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="no">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Setningsvalg</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo">V</div>
+        <div>
+          <div class="title">Setningsvalg</div>
+          <div class="subtitle">Finn ordet som passer best i setningen</div>
+        </div>
+      </div>
+      <div class="top-actions">
+        <button id="restart" class="btn ghost" type="button">Start nytt spill</button>
+        <button id="backToStart" class="btn ghost" type="button">Til startsiden</button>
+        <a class="hub-link" href="../../index.html">Spillhub</a>
+      </div>
+    </header>
+
+    <section class="screen screen-start" id="screenStart">
+      <div class="card start-card">
+        <div class="card-title">Klar for runden?</div>
+        <p class="card-text">
+          Du f&aring;r 10 setninger. Velg ordet som passer best og bygg trygghet p&aring; nyanser.
+        </p>
+        <div class="start-actions">
+          <button id="startGame" class="btn primary" type="button">Start spill</button>
+          <div class="start-note">Fire alternativer per oppgave.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen screen-game hidden" id="screenGame">
+      <div class="stats">
+        <div class="pill"><span class="k">Poeng</span> <span id="score">0</span></div>
+        <div class="pill"><span class="k">Riktig</span> <span id="correct">0</span></div>
+        <div class="pill"><span class="k">Feil</span> <span id="wrong">0</span></div>
+        <div class="pill"><span class="k">Oppgave</span> <span id="progress">0/0</span></div>
+      </div>
+
+      <main class="card game-card">
+        <section class="prompt" id="promptArea">
+          <div class="label">Hvilket ord passer best?</div>
+          <div class="sentence" id="sentence">-</div>
+        </section>
+
+        <section class="choices" id="choices"></section>
+
+        <div class="feedback" id="feedback" aria-live="polite"></div>
+        <div class="explanation" id="explanation"></div>
+
+        <section class="controls" id="gameControls">
+          <button id="next" class="btn primary" type="button" disabled>Neste</button>
+        </section>
+
+        <section class="summary hidden" id="summary">
+          <div class="summary-title">Runden er ferdig</div>
+          <div class="summary-text" id="summaryText">-</div>
+          <div class="summary-actions">
+            <button id="playAgain" class="btn primary" type="button">Spill igjen</button>
+            <button id="summaryBack" class="btn ghost" type="button">Til startsiden</button>
+          </div>
+        </section>
+      </main>
+    </section>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

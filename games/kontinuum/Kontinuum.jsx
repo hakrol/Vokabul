@@ -99,17 +99,17 @@ export default function Kontinuum() {
 
     return (
         <div className="space-y-6">
-            <div className="rounded-3xl border border-slate-800 bg-slate-900/70 p-6 shadow-xl">
+            <div className="card-shell p-6">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                     <div className="text-sm uppercase tracking-widest text-slate-400">
                         Niv\u00e5 {levelIndex + 1} av {LEVELS.length}
                     </div>
-                    <div className="rounded-full border border-slate-800 bg-slate-950/70 px-4 py-2 text-sm text-slate-300">
+                    <div className="pill-tag text-sm">
                         Perfekte niv\u00e5er: <strong>{perfectCount}</strong>
                     </div>
                 </div>
 
-                <div className="mt-6 rounded-3xl border border-slate-800 bg-slate-950/80 p-6">
+                <div className="mt-6 card-panel p-6">
                     <div className="flex flex-wrap items-center justify-between gap-4">
                         <div className="text-lg font-semibold text-slate-200">
                             {level.startAnchor}
@@ -131,7 +131,7 @@ export default function Kontinuum() {
                                     onDragStart={() => onDragStart(index)}
                                     onDragOver={(event) => event.preventDefault()}
                                     onDrop={() => onDrop(index)}
-                                    className={`relative z-10 rounded-full border border-slate-700 bg-slate-800 px-4 py-2 text-sm font-semibold text-slate-100 shadow-md transition ${
+                                    className={`relative z-10 word-pill px-4 py-2 text-sm font-semibold transition ${
                                         status || wrong
                                     }`}
                                 >
@@ -144,14 +144,14 @@ export default function Kontinuum() {
 
                 <div className="mt-6 flex flex-wrap gap-3">
                     <button
-                        className="rounded-full border border-slate-700 px-5 py-2 text-sm font-semibold text-slate-200 transition hover:border-slate-500"
+                        className="btn btn-ghost text-sm"
                         onClick={handleCheck}
                         disabled={checked}
                     >
                         Sjekk svar
                     </button>
                     <button
-                        className="rounded-full bg-sky-500 px-5 py-2 text-sm font-semibold text-slate-900 shadow-lg transition hover:bg-sky-400 disabled:opacity-40"
+                        className="btn btn-primary text-sm"
                         onClick={handleNext}
                         disabled={!solved}
                     >

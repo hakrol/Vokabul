@@ -4,22 +4,25 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Kontinuum</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="tailwind.css" />
   <link rel="stylesheet" href="style.css" />
 </head>
-<body class="min-h-screen bg-slate-950 text-slate-100">
+<body class="min-h-screen">
   <main class="mx-auto w-full max-w-5xl px-4 py-8">
     <header class="mb-8 flex flex-wrap items-center justify-between gap-4">
       <div>
-        <h1 class="text-3xl font-semibold tracking-tight">Kontinuum</h1>
+        <h1 class="title-serif text-3xl font-semibold tracking-tight">Kontinuum</h1>
         <p class="text-slate-400">Sorter ord etter intensitet mellom to ankere.</p>
       </div>
       <div class="flex items-center gap-3">
-        <div class="rounded-full border border-slate-800 bg-slate-900 px-4 py-2 text-sm text-slate-300">
+        <div class="pill-tag text-sm">
           Rekord: <strong id="bestStat">0</strong>
         </div>
         <a
-          class="rounded-full border border-slate-700 px-4 py-2 text-sm font-semibold text-slate-100 transition hover:border-slate-500"
+          class="btn btn-ghost text-sm"
           href="../../index.html"
         >
           Spillhub

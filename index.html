@@ -4,42 +4,129 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Spillhub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <main class="hub">
+  <main class="landing">
     <header class="hero">
-      <div>
-        <div class="hero-title">Spillhub</div>
-        <div class="hero-subtitle">Velg et spill og start treningen.</div>
+      <div class="hero-copy">
+        <div class="hero-kicker">Vokab</div>
+        <h1>Oppdag nye ord p&aring; en leken m&aring;te.</h1>
+        <p class="hero-subtitle">
+          Spill deg gjennom korte runder, bygg ordforr&aring;d og finn nye favorittord.
+        </p>
+        <div class="hero-actions">
+          <a class="btn primary" href="#spill">Utforsk spillene</a>
+          <span class="hero-note">Nye utfordringer hver dag.</span>
+        </div>
+      </div>
+
+      <div class="daily-card" id="dagens-ord">
+        <div class="daily-label">Dagens ord</div>
+        <div class="daily-date" id="word-date"></div>
+        <div class="daily-word" id="word-title">Laster ord...</div>
+        <p class="daily-desc" id="word-desc">
+          Finner et uvanlig ord og en forklaring som passer i dag.
+        </p>
+        <div class="daily-details">
+          <div class="daily-block">
+            <div class="daily-block-title">Eksempler</div>
+            <ul class="daily-list" id="word-examples"></ul>
+          </div>
+          <div class="daily-block">
+            <div class="daily-block-title">Synonymer</div>
+            <div class="daily-tags" id="word-synonyms"></div>
+          </div>
+        </div>
+        <div class="daily-meta" id="word-meta"></div>
       </div>
     </header>
 
-    <section class="grid">
-      <article class="card">
-        <div class="card-title">Synonymspill</div>
-        <p class="card-text">
-          Finn synonymer i setninger. 10 oppgaver per runde og bonus for full pott.
+    <section class="quick-guess" id="dagens-gjett">
+      <div class="quick-card">
+        <div class="quick-title">Dagens gjett</div>
+        <p class="quick-text">
+          Gjett hvilket ord vi beskriver. Klarer du det p&aring; f&oslash;rste fors&oslash;k?
         </p>
-        <a class="btn" href="games/synonymspill/index.html">Spill</a>
-      </article>
+        <div class="quick-clue" id="quick-clue">Laster oppgave...</div>
+        <div class="quick-form">
+          <div class="quick-slots" id="quick-slots" role="textbox" tabindex="0" aria-label="Skriv ordet"></div>
+          <button class="btn secondary" id="quick-check" type="button">Sjekk</button>
+          <button class="btn ghost" id="quick-reveal" type="button">Avsl&oslash;r</button>
+          <button class="btn admin" id="quick-reset" type="button">Reset</button>
+        </div>
+        <div class="quick-feedback" id="quick-feedback"></div>
+      </div>
+    </section>
 
-      <article class="card">
-        <div class="card-title">Kontinuum</div>
-        <p class="card-text">
-          Dra ordene mellom to ankere og sorter dem etter intensitet.
-        </p>
-        <a class="btn" href="games/kontinuum/index.html">Spill</a>
-      </article>
+    <section class="games" id="spill">
+      <div class="section-title">Velg et spill</div>
+      <div class="grid">
+        <a class="card card-synonym" href="games/synonymspill/index.html">
+          <div class="card-title">Synonymspill</div>
+          <p class="card-text">
+            Finn synonymer i setninger. 10 oppgaver per runde og bonus for full pott.
+          </p>
+          <span class="card-cta">Spill</span>
+        </a>
 
-      <article class="card">
-        <div class="card-title">Vokabularspill</div>
-        <p class="card-text">
-          Velg riktig forklaring p&aring; norske ord og bygg ordforr&aring;d.
-        </p>
-        <a class="btn" href="games/vokabularspill/index.html">Spill</a>
-      </article>
+        <a class="card card-ordgjett" href="games/ordgjettespill/index.html">
+          <div class="card-title">Ordgjettespill</div>
+          <p class="card-text">
+            Gjett ordet ut fra en beskrivelse og bygg lengst mulig rekke.
+          </p>
+          <span class="card-cta">Spill</span>
+        </a>
+
+        <a class="card card-kontinuum" href="games/kontinuum/index.html">
+          <div class="card-title">Kontinuum</div>
+          <p class="card-text">
+            Dra ordene mellom to ankere og sorter dem etter intensitet.
+          </p>
+          <span class="card-cta">Spill</span>
+        </a>
+
+        <a class="card card-vokabular" href="games/vokabularspill/index.html">
+          <div class="card-title">Vokabularspill</div>
+          <p class="card-text">
+            Velg riktig forklaring p&aring; norske ord og bygg ordforr&aring;d.
+          </p>
+          <span class="card-cta">Spill</span>
+        </a>
+
+        <a class="card card-setning" href="games/setningsvalg/index.html">
+          <div class="card-title">Setningsvalg</div>
+          <p class="card-text">
+            Finn ordet som passer best i setningen og bli tryggere p&aring; nyanser.
+          </p>
+          <span class="card-cta">Spill</span>
+        </a>
+      </div>
     </section>
   </main>
+
+  <script>
+    (function () {
+      if (window.location.protocol === "file:") {
+        const titleEl = document.getElementById("word-title");
+        const descEl = document.getElementById("word-desc");
+        if (titleEl) titleEl.textContent = "Start en lokal server";
+        if (descEl) {
+          descEl.textContent =
+            "ES-moduler kan ikke lastes direkte fra file://. Kjør siden via localhost for å se dagens ord.";
+        }
+        return;
+      }
+
+      const moduleScript = document.createElement("script");
+      moduleScript.type = "module";
+      moduleScript.textContent =
+        'import { loadDailyWord, loadQuickGuess } from "./js/words/index.js"; loadDailyWord(); loadQuickGuess();';
+      document.head.appendChild(moduleScript);
+    })();
+  </script>
 </body>
 </html>

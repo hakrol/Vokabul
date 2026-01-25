@@ -5,6 +5,7 @@ const SCORE_RIGHT = 10;
 const SCORE_WRONG = -5;
 
 const STORAGE_KEY = "vokabularspill_stats_v1";
+const PRACTICE_KEY = "vokabularspill_practice_list";
 
 function canUseStorage() {
     try {
@@ -43,6 +44,29 @@ function loadStats() {
 function saveStats(stats) {
     if (!storageAvailable) return;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(stats));
+}
+
+function loadPracticeList() {
+    if (!storageAvailable) return [];
+    const raw = localStorage.getItem(PRACTICE_KEY);
+    if (!raw) return [];
+    try {
+        const parsed = JSON.parse(raw);
+        if (!Array.isArray(parsed)) return [];
+        return parsed
+            .map((item) => ({
+                index: Number(item.index),
+                wrongCount: Math.max(1, Number(item.wrongCount) || 1),
+            }))
+            .filter((item) => Number.isInteger(item.index) && WORDS[item.index]);
+    } catch {
+        return [];
+    }
+}
+
+function savePracticeList(list) {
+    if (!storageAvailable) return;
+    localStorage.setItem(PRACTICE_KEY, JSON.stringify(list));
 }
 
 const WORDS = [
@@ -207,11 +231,16 @@ const WORDS = [
 const el = {
     screenStart: document.getElementById("screenStart"),
     screenGame: document.getElementById("screenGame"),
+    screenPractice: document.getElementById("screenPractice"),
     startGame: document.getElementById("startGame"),
+    startPracticeFromStart: document.getElementById("startPracticeFromStart"),
     bestScore: document.getElementById("bestScore"),
     lastScore: document.getElementById("lastScore"),
     lastCorrect: document.getElementById("lastCorrect"),
     lastWrong: document.getElementById("lastWrong"),
+    practiceCount: document.getElementById("practiceCount"),
+    practiceEmpty: document.getElementById("practiceEmpty"),
+    practiceSummary: document.getElementById("practiceSummary"),
     word: document.getElementById("word"),
     choices: document.getElementById("choices"),
     feedback: document.getElementById("feedback"),
@@ -222,18 +251,23 @@ const el = {
     correct: document.getElementById("correct"),
     wrong: document.getElementById("wrong"),
     progress: document.getElementById("progress"),
+    modePill: document.getElementById("modePill"),
     next: document.getElementById("next"),
     restart: document.getElementById("restart"),
     endEarly: document.getElementById("endEarly"),
     togglePractice: document.getElementById("togglePractice"),
     summary: document.getElementById("summary"),
     summaryText: document.getElementById("summaryText"),
-    practice: document.getElementById("practice"),
     practiceList: document.getElementById("practiceList"),
     practiceStart: document.getElementById("practiceStart"),
+    practicePlay: document.getElementById("practicePlay"),
+    practiceReset: document.getElementById("practiceReset"),
+    practiceBack: document.getElementById("practiceBack"),
+    backToStart: document.getElementById("backToStart"),
 };
 
 const stats = loadStats();
+const storedPracticeList = loadPracticeList();
 
 const state = {
     order: [],
@@ -241,7 +275,8 @@ const state = {
     score: 0,
     correct: 0,
     wrong: 0,
-    wrongItems: [],
+    practiceList: storedPracticeList,
+    practiceSessionCorrect: [],
     locked: false,
     mode: "main",
     progressCount: null,
@@ -250,7 +285,12 @@ const state = {
 function setScreen(screen) {
     if (el.screenStart) el.screenStart.classList.add("hidden");
     if (el.screenGame) el.screenGame.classList.add("hidden");
+    if (el.screenPractice) el.screenPractice.classList.add("hidden");
     screen.classList.remove("hidden");
+    document.body.classList.toggle(
+        "is-playing",
+        el.screenGame && screen === el.screenGame,
+    );
 }
 
 function updateStartStats() {
@@ -259,6 +299,59 @@ function updateStartStats() {
     el.lastScore.textContent = String(stats.lastScore);
     el.lastCorrect.textContent = String(stats.lastCorrect);
     el.lastWrong.textContent = String(stats.lastWrong);
+}
+
+function updatePracticeSummary(words) {
+    if (!el.practiceSummary) return;
+    if (!words || words.length === 0) {
+        el.practiceSummary.textContent = "";
+        el.practiceSummary.hidden = true;
+        return;
+    }
+    el.practiceSummary.hidden = false;
+    el.practiceSummary.textContent =
+        `Riktig i siste øvelsesrunde: ${words.join(", ")}.`;
+}
+
+function updatePracticeUI() {
+    const count = state.practiceList.length;
+    if (el.practiceCount) el.practiceCount.textContent = String(count);
+    if (el.togglePractice) el.togglePractice.disabled = count === 0;
+    if (el.practiceStart) el.practiceStart.disabled = count === 0;
+    if (el.practicePlay) el.practicePlay.disabled = count === 0;
+    if (el.practiceReset) el.practiceReset.disabled = count === 0;
+    if (el.startPracticeFromStart) {
+        el.startPracticeFromStart.textContent = `Øv på feil ord (${count})`;
+        el.startPracticeFromStart.hidden = count === 0;
+    }
+    if (el.practiceEmpty) el.practiceEmpty.hidden = count !== 0;
+}
+
+function savePracticeState() {
+    savePracticeList(state.practiceList);
+    updatePracticeUI();
+}
+
+function addToPracticeList(index) {
+    const existing = state.practiceList.find((item) => item.index === index);
+    if (existing) {
+        existing.wrongCount += 1;
+    } else {
+        state.practiceList.push({ index, wrongCount: 1 });
+    }
+    savePracticeState();
+}
+
+function removeFromPracticeList(index) {
+    state.practiceList = state.practiceList.filter((item) => item.index !== index);
+    savePracticeState();
+    if (el.practiceList) renderPracticeList();
+}
+
+function clearPracticeList() {
+    state.practiceList = [];
+    savePracticeState();
+    if (el.practiceList) renderPracticeList();
 }
 
 function shuffle(arr) {
@@ -280,6 +373,7 @@ function updateStats() {
             ? Math.min(state.index + 1, total)
             : Math.min(state.progressCount, total);
     el.progress.textContent = `${progressValue}/${total}`;
+    if (el.modePill) el.modePill.hidden = state.mode !== "practice";
 }
 
 function finishRoundStats() {
@@ -343,11 +437,6 @@ function showQuestion() {
     updateStats();
 }
 
-function addWrongItem(index) {
-    if (!state.wrongItems.includes(index)) {
-        state.wrongItems.push(index);
-    }
-}
 
 function handleAnswer(option, btn) {
     if (state.locked) return;
@@ -364,9 +453,13 @@ function handleAnswer(option, btn) {
     if (option.correct) {
         btn.classList.add("correct");
         setFeedback("Riktig.", "ok");
-        if (state.mode === "main") {
-            state.score += SCORE_RIGHT;
-            state.correct += 1;
+        state.score += SCORE_RIGHT;
+        state.correct += 1;
+        if (state.mode === "practice") {
+            const correctWord = entry.word;
+            if (!state.practiceSessionCorrect.includes(correctWord)) {
+                state.practiceSessionCorrect.push(correctWord);
+            }
         }
         updateStats();
         setTimeout(nextQuestion, 500);
@@ -374,11 +467,9 @@ function handleAnswer(option, btn) {
         btn.classList.add("wrong");
         setFeedback("Feil. Riktig forklaring vises under.", "bad");
         el.details.classList.add("show");
-        if (state.mode === "main") {
-            state.score += SCORE_WRONG;
-            state.wrong += 1;
-            addWrongItem(state.order[state.index]);
-        }
+        state.score += SCORE_WRONG;
+        state.wrong += 1;
+        addToPracticeList(state.order[state.index]);
         updateStats();
         el.next.disabled = false;
     }
@@ -394,8 +485,7 @@ function nextQuestion() {
     } else {
         state.index += 1;
         if (state.index >= state.order.length) {
-            setFeedback("\u00d8velsesrunde ferdig.", "ok");
-            el.next.disabled = true;
+            endPracticeRound();
             return;
         }
     }
@@ -404,8 +494,9 @@ function nextQuestion() {
 }
 
 function renderPracticeList() {
+    if (!el.practiceList) return;
     el.practiceList.innerHTML = "";
-    if (state.wrongItems.length === 0) {
+    if (state.practiceList.length === 0) {
         const empty = document.createElement("div");
         empty.className = "practiceItem";
         empty.textContent = "Ingen ord i \u00f8velseslisten.";
@@ -413,15 +504,25 @@ function renderPracticeList() {
         return;
     }
 
-    state.wrongItems.forEach((idx) => {
-        const entry = WORDS[idx];
+    state.practiceList.forEach((practiceItem) => {
+        const entry = WORDS[practiceItem.index];
+        if (!entry) return;
         const item = document.createElement("div");
         item.className = "practiceItem";
         item.innerHTML = `
-            <div class="practiceWord">${entry.word}</div>
+            <div class="practiceItemTop">
+              <div class="practiceWord">${entry.word}</div>
+              <button class="practiceRemove" type="button" data-index="${practiceItem.index}">Fjern</button>
+            </div>
+            <div class="practiceCount">Bommet: ${practiceItem.wrongCount} ganger</div>
             <div>${entry.correct}</div>
             <div class="practiceExamples">${entry.examples.join(" | ")}</div>
         `;
+        item
+            .querySelector(".practiceRemove")
+            .addEventListener("click", () =>
+                removeFromPracticeList(practiceItem.index),
+            );
         el.practiceList.appendChild(item);
     });
 }
@@ -435,14 +536,10 @@ function endGame() {
     disableChoices();
     if (el.endEarly) el.endEarly.disabled = true;
     el.summary.classList.add("show");
-    el.practice.classList.add("show");
-    el.togglePractice.disabled = false;
-    el.togglePractice.textContent = "Skjul \u00f8velsesliste";
-    el.practiceStart.disabled = state.wrongItems.length === 0;
+    el.practiceStart.disabled = state.practiceList.length === 0;
     el.summaryText.textContent =
         `Du svarte riktig ${state.correct} av ${TOTAL_QUESTIONS}. ` +
         `Poeng: ${state.score}. Feil: ${state.wrong}.`;
-    renderPracticeList();
 }
 
 function endGameEarly() {
@@ -456,14 +553,23 @@ function endGameEarly() {
     el.next.disabled = true;
     if (el.endEarly) el.endEarly.disabled = true;
     el.summary.classList.add("show");
-    el.practice.classList.add("show");
-    el.togglePractice.disabled = false;
-    el.togglePractice.textContent = "Skjul \u00f8velsesliste";
-    el.practiceStart.disabled = state.wrongItems.length === 0;
+    el.practiceStart.disabled = state.practiceList.length === 0;
     el.summaryText.textContent =
         `Du avsluttet runden etter ${answered} av ${TOTAL_QUESTIONS} ord. ` +
         `Riktig: ${state.correct}. Feil: ${state.wrong}. Poeng: ${state.score}.`;
-    renderPracticeList();
+}
+
+function endPracticeRound() {
+    state.progressCount = state.order.length;
+    updateStats();
+    finishRoundStats();
+    state.locked = true;
+    disableChoices();
+    el.next.disabled = true;
+    updatePracticeSummary(state.practiceSessionCorrect);
+    updatePracticeUI();
+    state.mode = "main";
+    if (el.screenStart) setScreen(el.screenStart);
 }
 
 function startGame() {
@@ -471,15 +577,21 @@ function startGame() {
     if (el.screenGame) setScreen(el.screenGame);
 }
 
-function startPractice() {
-    if (state.wrongItems.length === 0) return;
+function startPracticeRound() {
+    const indices = state.practiceList.map((item) => item.index);
+    if (indices.length === 0) return;
     state.mode = "practice";
-    state.order = shuffle(state.wrongItems);
+    state.order = shuffle(indices).slice(0, Math.min(TOTAL_QUESTIONS, indices.length));
     state.index = 0;
+    state.score = 0;
+    state.correct = 0;
+    state.wrong = 0;
+    state.practiceSessionCorrect = [];
     state.progressCount = null;
     el.details.classList.remove("show");
     if (el.endEarly) el.endEarly.disabled = true;
     setFeedback("\u00d8velsesrunde startet.", "ok");
+    if (el.screenGame) setScreen(el.screenGame);
     showQuestion();
 }
 
@@ -493,43 +605,67 @@ function startNewGame() {
     state.score = 0;
     state.correct = 0;
     state.wrong = 0;
-    state.wrongItems = [];
+    state.practiceSessionCorrect = [];
     state.locked = false;
     state.progressCount = null;
     if (el.endEarly) el.endEarly.disabled = false;
     el.summary.classList.remove("show");
-    el.practice.classList.remove("show");
-    el.togglePractice.disabled = true;
-    el.togglePractice.textContent = "Vis \u00f8velsesliste";
-    el.practiceStart.disabled = true;
+    updatePracticeSummary([]);
+    updatePracticeUI();
     showQuestion();
 }
 
-function togglePracticeList() {
-    if (el.practice.classList.contains("show")) {
-        el.practice.classList.remove("show");
-        el.togglePractice.textContent = "Vis \u00f8velsesliste";
-    } else {
-        el.practice.classList.add("show");
-        el.togglePractice.textContent = "Skjul \u00f8velsesliste";
-    }
+function showPracticeScreen() {
+    if (!el.screenPractice) return;
+    renderPracticeList();
+    setScreen(el.screenPractice);
 }
 
 document.addEventListener("DOMContentLoaded", () => {
     updateStartStats();
+    updatePracticeUI();
+    updatePracticeSummary([]);
     if (el.screenStart && el.screenGame) {
         setScreen(el.screenStart);
     }
     if (el.startGame) {
         el.startGame.addEventListener("click", startGame);
     }
+    if (el.startPracticeFromStart) {
+        el.startPracticeFromStart.addEventListener("click", startPracticeRound);
+    }
     el.next.addEventListener("click", nextQuestion);
     el.restart.addEventListener("click", () => {
         if (el.screenStart) setScreen(el.screenStart);
     });
+    if (el.backToStart) {
+        el.backToStart.addEventListener("click", () => {
+            if (el.screenStart) setScreen(el.screenStart);
+        });
+    }
     if (el.endEarly) {
         el.endEarly.addEventListener("click", endGameEarly);
     }
-    el.togglePractice.addEventListener("click", togglePracticeList);
-    el.practiceStart.addEventListener("click", startPractice);
+    if (el.togglePractice) {
+        el.togglePractice.addEventListener("click", showPracticeScreen);
+    }
+    if (el.practiceStart) {
+        el.practiceStart.addEventListener("click", startPracticeRound);
+    }
+    if (el.practicePlay) {
+        el.practicePlay.addEventListener("click", startPracticeRound);
+    }
+    if (el.practiceReset) {
+        el.practiceReset.addEventListener("click", () => {
+            if (confirm("Nullstille \u00f8velseslisten?")) {
+                clearPracticeList();
+                renderPracticeList();
+            }
+        });
+    }
+    if (el.practiceBack) {
+        el.practiceBack.addEventListener("click", () => {
+            if (el.screenStart) setScreen(el.screenStart);
+        });
+    }
 });

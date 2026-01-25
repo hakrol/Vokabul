@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="no">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ordgjettespill</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="game">
+    <header class="topbar">
+      <div class="brand">Ordgjettespill</div>
+      <div class="top-actions">
+        <div class="progress" id="progress-text">Oppgave 0 av 0</div>
+        <a class="hub-link" href="../../index.html">Spillhub</a>
+      </div>
+    </header>
+
+    <section class="screen active" id="start-screen">
+      <div class="start-grid">
+        <div class="panel hero-panel start-hero">
+          <div class="hero-title">Sl&aring; din egen rekord</div>
+          <div class="record-value" id="record-value">Ingen rekord enn&aring;</div>
+          <div class="record-text" id="record-text">
+            Spill og sett den f&oslash;rste!
+          </div>
+          <div class="record-sub" id="record-sub"></div>
+          <div class="record-session" id="record-session"></div>
+          <div class="motivation" id="motivation-text"></div>
+          <div class="milestone" id="milestone-text"></div>
+          <div class="difficulty">
+            <label class="difficulty-label" for="difficulty-select">Vanskelighetsgrad</label>
+            <select id="difficulty-select" class="difficulty-select">
+              <option value="easy">Enkel (Level 1)</option>
+              <option value="medium" selected>Medium (Level 2)</option>
+              <option value="hard">Vanskelig (Level 3)</option>
+            </select>
+          </div>
+          <button class="btn primary" id="start-btn">Start spill</button>
+        </div>
+
+        <div class="panel stats-panel">
+          <div class="stats-title">Din statistikk</div>
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-icon">🎯</div>
+              <div class="stat-value" id="stat-success-rate">0%</div>
+              <div class="stat-label">Suksessrate</div>
+              <div class="stat-trend" id="stat-trend">–</div>
+              <button class="info-btn" id="successRateInfo" title="Hvordan beregnes suksessrate?">ℹ</button>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon">🧭</div>
+              <div class="stat-value" id="stat-rounds">0</div>
+              <div class="stat-label">Runder spilt</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon">⚡</div>
+              <div class="stat-value" id="stat-mastered">0</div>
+              <div class="stat-label">Ord mestret</div>
+              <button class="info-btn" id="masteredWordsInfo" title="Hva betyr 'ord mestret'?">ℹ</button>
+            </div>
+          </div>
+          <div class="stats-chart">
+            <div class="chart-header">Suksessrate, 10 siste spill</div>
+            <div class="chart-body" id="success-rate-chart" aria-label="Suksessrate siste ti spill"></div>
+            <div class="chart-axis">
+              <span>0%</span>
+              <span>100%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen" id="game-screen">
+      <div class="panel">
+        <div class="label">Beskrivelse</div>
+        <p class="description" id="description-text">...</p>
+        <div class="hint" id="hint-text">Starter med ...</div>
+
+        <div class="answer-row">
+          <input
+            id="answer-input"
+            type="text"
+            autocomplete="off"
+            placeholder="Skriv svaret her"
+            aria-label="Svarfelt"
+          />
+          <button class="btn primary" id="submit-btn">Svar</button>
+          <button class="btn ghost" id="skip-btn">Hopp over</button>
+          <button class="btn ghost" id="end-btn">Avslutt spill</button>
+        </div>
+        <div class="feedback" id="feedback-text" aria-live="polite"></div>
+      </div>
+
+      <section class="panel summary">
+        <div class="summary-title">Oppsummering</div>
+        <div class="summary-grid">
+          <div class="summary-item">
+            <span class="summary-label">Totalt antall fors&oslash;k</span>
+            <span class="summary-value" id="stat-total">0</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">Riktige svar</span>
+            <span class="summary-value" id="stat-correct">0</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">Lengste rekke</span>
+            <span class="summary-value" id="stat-streak">0</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">Poeng</span>
+            <span class="summary-value" id="stat-points">0</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">Total tid</span>
+            <span class="summary-value" id="stat-time">00:00</span>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <section class="screen" id="end-screen">
+      <div class="panel hero-panel">
+        <div class="hero-title">Spill ferdig</div>
+        <div class="end-message" id="end-message">Bra jobbet!</div>
+        <div class="record-text" id="end-record-text"></div>
+        <div class="end-actions">
+          <button class="btn primary" id="restart-btn">Spill igjen</button>
+          <button class="btn ghost" id="back-btn">Til startsiden</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Info-modal for suksessrate -->
+  <div class="modal" id="successRateModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Suksessrate</h2>
+        <button class="modal-close" id="closeSuccessRateModal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="formula">Riktige svar ÷ Totale forsøk × 100 = Suksessrate</p>
+        <div class="example">
+          <p><strong>Eksempel:</strong></p>
+          <p>85 riktige av 100 forsøk = 85%</p>
+        </div>
+        <p class="info-text">Suksessraten oppdateres over alle runder du har spilt.</p>
+        <div class="trend-section">
+          <p><strong>Trend:</strong></p>
+          <ul>
+            <li>↑ Opp: Raten har forbedret seg</li>
+            <li>↓ Ned: Raten har falt</li>
+            <li>→ Stabil: Raten er uendret</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Info-modal for Ord Mestret -->
+  <div class="modal" id="masteredWordsModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Ord mestret</h2>
+        <button class="modal-close" id="closeMasteredWordsModal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="definition">Et ord er <strong>mestret</strong> når du svarer riktig på det <strong>2 ganger på rad</strong>.</p>
+        <div class="example">
+          <p><strong>Eksempel:</strong></p>
+          <ol>
+            <li>Runde 1: Du svarer feil → Streak: 0</li>
+            <li>Runde 2: Du svarer riktig → Streak: 1</li>
+            <li>Runde 3: Du svarer riktig igjen → Streak: 2 ✅ MESTRET!</li>
+          </ol>
+        </div>
+        <p class="info-text">Når et ord er mestret, forblir det merket som mestret selv om du bommesspilleren senere.</p>
+        <p class="info-text"><strong>Statistikk:</strong> "Ord mestret" viser totalt antall ulike ord du har mestret.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Overlay for modal -->
+  <div class="modal-overlay" id="modalOverlay"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

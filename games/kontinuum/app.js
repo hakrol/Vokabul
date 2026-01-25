@@ -161,8 +161,8 @@ function KontinuumApp() {
 
     const startScreen = h(
         "div",
-        { className: "rounded-3xl border border-slate-800 bg-slate-900/60 p-6 shadow-xl" },
-        h("h2", { className: "text-xl font-semibold" }, "Start en runde"),
+        { className: "card-shell p-6" },
+        h("h2", { className: "title-serif text-xl font-semibold" }, "Start en runde"),
         h(
             "p",
             { className: "mt-2 text-slate-400" },
@@ -173,7 +173,7 @@ function KontinuumApp() {
             { className: "mt-4 grid gap-3 sm:grid-cols-2" },
             h(
                 "div",
-                { className: "rounded-2xl border border-slate-800 bg-slate-950/60 p-4" },
+                { className: "stat-card p-4" },
                 h(
                     "div",
                     { className: "text-xs uppercase tracking-widest text-slate-500" },
@@ -183,7 +183,7 @@ function KontinuumApp() {
             ),
             h(
                 "div",
-                { className: "rounded-2xl border border-slate-800 bg-slate-950/60 p-4" },
+                { className: "stat-card p-4" },
                 h(
                     "div",
                     { className: "text-xs uppercase tracking-widest text-slate-500" },
@@ -195,8 +195,7 @@ function KontinuumApp() {
         h(
             "button",
             {
-                className:
-                    "mt-6 inline-flex items-center justify-center rounded-full bg-sky-500 px-6 py-3 font-semibold text-slate-900 shadow-lg transition hover:bg-sky-400",
+                className: "mt-6 btn btn-primary",
                 onClick: startGame,
             },
             "Start niv\u00e5"
@@ -214,7 +213,7 @@ function KontinuumApp() {
                 onDragStart: () => onDragStart(index),
                 onDragOver: (event) => event.preventDefault(),
                 onDrop: () => onDrop(index),
-                className: `relative z-10 rounded-full border border-slate-700 bg-slate-800 px-4 py-2 text-sm font-semibold text-slate-100 shadow-md transition ${status || wrong}`,
+                className: `relative z-10 word-pill px-4 py-2 text-sm font-semibold transition ${status || wrong}`,
             },
             word
         );
@@ -222,7 +221,7 @@ function KontinuumApp() {
 
     const gameScreen = h(
         "div",
-        { className: "rounded-3xl border border-slate-800 bg-slate-900/70 p-6 shadow-xl" },
+        { className: "card-shell p-6" },
         h(
             "div",
             { className: "flex flex-wrap items-center justify-between gap-3" },
@@ -233,14 +232,14 @@ function KontinuumApp() {
             ),
             h(
                 "div",
-                { className: "rounded-full border border-slate-800 bg-slate-950/70 px-4 py-2 text-sm text-slate-300" },
+                { className: "pill-tag text-sm" },
                 "Perfekte niv\u00e5er: ",
                 h("strong", null, perfectCount)
             )
         ),
         h(
             "div",
-            { className: "mt-6 rounded-3xl border border-slate-800 bg-slate-950/80 p-6" },
+            { className: "mt-6 card-panel p-6" },
             h(
                 "div",
                 { className: "flex flex-wrap items-center justify-between gap-4" },
@@ -259,8 +258,7 @@ function KontinuumApp() {
             h(
                 "button",
                 {
-                    className:
-                        "rounded-full border border-slate-700 px-5 py-2 text-sm font-semibold text-slate-200 transition hover:border-slate-500",
+                    className: "btn btn-ghost text-sm",
                     onClick: handleCheck,
                     disabled: checked,
                 },
@@ -269,8 +267,7 @@ function KontinuumApp() {
             h(
                 "button",
                 {
-                    className:
-                        "rounded-full bg-sky-500 px-5 py-2 text-sm font-semibold text-slate-900 shadow-lg transition hover:bg-sky-400 disabled:opacity-40",
+                    className: "btn btn-primary text-sm",
                     onClick: handleNext,
                     disabled: !solved,
                 },
@@ -279,8 +276,7 @@ function KontinuumApp() {
             h(
                 "button",
                 {
-                    className:
-                        "rounded-full border border-slate-800 px-5 py-2 text-sm font-semibold text-slate-400",
+                    className: "btn btn-outline text-sm",
                     onClick: backToStart,
                 },
                 "Avslutt"
@@ -290,8 +286,8 @@ function KontinuumApp() {
 
     const summaryScreen = h(
         "div",
-        { className: "rounded-3xl border border-slate-800 bg-slate-900/60 p-6 shadow-xl" },
-        h("h2", { className: "text-xl font-semibold" }, "Runde ferdig"),
+        { className: "card-shell p-6" },
+        h("h2", { className: "title-serif text-xl font-semibold" }, "Runde ferdig"),
         h(
             "p",
             { className: "mt-2 text-slate-400" },
@@ -300,8 +296,7 @@ function KontinuumApp() {
         h(
             "button",
             {
-                className:
-                    "mt-6 inline-flex items-center justify-center rounded-full bg-sky-500 px-6 py-3 font-semibold text-slate-900 shadow-lg transition hover:bg-sky-400",
+                className: "mt-6 btn btn-primary",
                 onClick: backToStart,
             },
             "Til startsiden"
