@@ -9,15 +9,19 @@
   const sections = {
     dailyWords: {
       label: "Dagens ord",
-      description: "Her velger du ord som vises som dagens hovedord på forsiden."
+      description: "Her velger du ord som vises som dagens hovedord pÃ¥ forsiden."
     },
     quickGuess: {
       label: "Dagens gjett",
-      description: "Beskrivelsen blir brukt som ledetråd i dagens gjett."
+      description: "Beskrivelsen blir brukt som ledetrÃ¥d i dagens gjett."
     },
-        dailySynonyms: {
+    dailySynonyms: {
       label: "Dagens synonym",
-      description: "Minst ett synonym er nødvendig for at dagens synonym skal fungere."
+      description: "Minst ett synonym er nÃ¸dvendig for at dagens synonym skal fungere."
+    },
+    addWord: {
+      label: "Legg til ord",
+      description: "Legg inn nye ord og velg hvilke lister de skal inngÃ¥ i."
     },
     allWords: {
       label: "Alle ord",
@@ -28,12 +32,14 @@
   const state = {
     section: "dailyWords",
     editIndex: null,
+    editingWord: null,
     allWordsQuery: "",
     allWordsFilter: "all",
     data: {
       dailyWords: [],
       quickGuess: [],
-      dailySynonyms: []
+      dailySynonyms: [],
+      library: []
     }
   };
 
@@ -64,6 +70,10 @@
     synonyms: document.getElementById("admin-synonyms"),
     see: document.getElementById("admin-see")
   };
+
+  const includeDaily = document.getElementById("admin-include-daily");
+  const includeQuick = document.getElementById("admin-include-quick");
+  const includeSynonym = document.getElementById("admin-include-synonym");
 
   const sanitizeText = (value) => String(value || "").trim();
   const normalizeWord = (value) =>
@@ -149,10 +159,11 @@
     }
     const normalizeList = (list) =>
       Array.isArray(list) ? list.map(toAdminEntry).filter(Boolean) : [];
-    state.data = {
+        state.data = {
       dailyWords: normalizeList(raw?.dailyWords),
       quickGuess: normalizeList(raw?.quickGuess),
-      dailySynonyms: normalizeList(raw?.dailySynonyms)
+      dailySynonyms: normalizeList(raw?.dailySynonyms),
+      library: normalizeList(raw?.library)
     };
   };
 
@@ -186,6 +197,10 @@
   const resetForm = () => {
     form.reset();
     state.editIndex = null;
+    state.editingWord = null;
+    if (includeDaily) includeDaily.checked = false;
+    if (includeQuick) includeQuick.checked = false;
+    if (includeSynonym) includeSynonym.checked = false;
     clearStatus();
   };
 
@@ -314,9 +329,8 @@
       editBtn.type = "button";
       editBtn.textContent = "Rediger";
       editBtn.addEventListener("click", () => {
-        ensureAdminListSeeded(state.section);
-        const listIndex = state.data[state.section].findIndex((item) => normalizeWord(item.word) === normalizeWord(entry.word));
-        state.editIndex = listIndex === -1 ? null : listIndex;
+        state.editingWord = normalizeWord(entry.word);
+        setSection("addWord");
         fields.word.value = entry.word || "";
         fields.desc.value = entry.desc || "";
         fields.meaning.value = entry.meaning || "";
@@ -325,6 +339,18 @@
         fields.examples.value = (entry.examples || []).join("\n");
         fields.synonyms.value = (entry.synonyms || []).join(", ");
         fields.see.value = entry.see || "";
+        const dailySet = getEffectiveSet("dailyWords");
+        const quickSet = getEffectiveSet("quickGuess");
+        const synonymSet = getEffectiveSet("dailySynonyms");
+        if (includeDaily) {
+          includeDaily.checked = dailySet.has(normalizeWord(entry.word));
+        }
+        if (includeQuick) {
+          includeQuick.checked = quickSet.has(normalizeWord(entry.word));
+        }
+        if (includeSynonym) {
+          includeSynonym.checked = synonymSet.has(normalizeWord(entry.word));
+        }
         setStatus("Redigerer ordet \"" + entry.word + "\".");
         window.scrollTo({ top: 0, behavior: "smooth" });
       });
@@ -375,6 +401,9 @@
     return getDefaultListForSection(section);
   };
 
+  const getEffectiveSet = (section) =>
+    new Set(getEffectiveList(section).map((item) => normalizeWord(item.word)));
+
   const getAllWords = () => {
     const map = new Map();
     baseWords.forEach((word) => {
@@ -391,6 +420,13 @@
         if (!cleaned) return;
         map.set(normalized, cleaned);
       });
+    });
+    (state.data.library || []).forEach((entry) => {
+      const normalized = normalizeWord(entry.word);
+      if (!normalized) return;
+      const cleaned = toAdminEntry(entry);
+      if (!cleaned) return;
+      map.set(normalized, cleaned);
     });
     return Array.from(map.values()).sort((a, b) =>
       a.word.localeCompare(b.word, "no", { sensitivity: "base" })
@@ -590,12 +626,15 @@
     if (!sections[nextSection]) return;
     state.section = nextSection;
     state.editIndex = null;
-    document.body.classList.toggle("is-allwords", nextSection === "allWords");
+    const isAllWords = nextSection === "allWords";
+    const isAddWord = nextSection === "addWord";
+    const isDailySection = ["dailyWords", "quickGuess", "dailySynonyms"].includes(nextSection);
+    document.body.classList.toggle("is-allwords", isAllWords);
+    document.body.classList.toggle("is-addword", isAddWord);
     navButtons.forEach((btn) => {
       btn.classList.toggle("is-active", btn.dataset.section === nextSection);
     });
     updateHeader();
-    const isAllWords = nextSection === "allWords";
     if (editorEl) {
       editorEl.hidden = isAllWords;
     }
@@ -603,17 +642,17 @@
       allWordsPanel.hidden = !isAllWords;
     }
     if (clearButton) {
-      clearButton.style.display = isAllWords ? "none" : "";
+      clearButton.style.display = isDailySection ? "" : "none";
     }
     if (clearAllButton) {
-      clearAllButton.style.display = isAllWords ? "none" : "";
+      clearAllButton.style.display = isDailySection ? "" : "none";
     }
-    if (!isAllWords) {
-      resetForm();
-      renderList();
-    } else {
+    if (isAllWords) {
       renderAllWords();
+      return;
     }
+    resetForm();
+    renderList();
   };
 
   navButtons.forEach((button) => {
@@ -685,11 +724,98 @@
   form.addEventListener("submit", (event) => {
     event.preventDefault();
     const entry = buildEntryFromForm();
-    const error = validateEntry(entry);
-    if (error) {
-      setStatus(error);
+    const inAddWord = state.section === "addWord";
+    const wantsDaily = !!includeDaily?.checked;
+    const wantsQuick = !!includeQuick?.checked;
+    const wantsSynonym = !!includeSynonym?.checked;
+
+    if (inAddWord) {
+      if ((wantsDaily || wantsQuick) && !entry.desc) {
+        setStatus("Dagens ord og Dagens gjett trenger en beskrivelse.");
+        return;
+      }
+      if (wantsSynonym && entry.synonyms.length === 0) {
+        setStatus("Dagens synonym trenger minst ett synonym.");
+        return;
+      }
+    } else {
+      const error = validateEntry(entry);
+      if (error) {
+        setStatus(error);
+        return;
+      }
+    }
+
+    const clearEmptyOverride = (section) => {
+      const key = `vokabul_admin_empty_${section}`;
+      if (storage?.remove) {
+        storage.remove(key);
+      } else {
+        localStorage.removeItem(key);
+      }
+    };
+
+    const ensureEmptyOverrideIfNeeded = (section) => {
+      const key = `vokabul_admin_empty_${section}`;
+      if ((state.data[section] || []).length === 0) {
+        if (storage?.writeJson) {
+          storage.writeJson(key, true);
+        } else {
+          localStorage.setItem(key, "true");
+        }
+      }
+    };
+
+    if (inAddWord) {
+      if (state.editingWord) {
+        ["dailyWords", "quickGuess", "dailySynonyms"].forEach((section) => {
+          const list = state.data[section] || [];
+          const idx = list.findIndex((item) => normalizeWord(item.word) === state.editingWord);
+          if (idx !== -1) {
+            list.splice(idx, 1);
+            ensureEmptyOverrideIfNeeded(section);
+          }
+        });
+        if (state.data.library && state.data.library.length) {
+          const idx = state.data.library.findIndex(
+            (item) => normalizeWord(item.word) === state.editingWord
+          );
+          if (idx !== -1) {
+            state.data.library.splice(idx, 1);
+          }
+        }
+      }
+
+      const anyInclude = wantsDaily || wantsQuick || wantsSynonym;
+      if (wantsDaily) {
+        setWordIncluded(entry, "dailyWords", true);
+      }
+      if (wantsQuick) {
+        setWordIncluded(entry, "quickGuess", true);
+      }
+      if (wantsSynonym) {
+        setWordIncluded(entry, "dailySynonyms", true);
+      }
+      if (!anyInclude) {
+        clearEmptyOverride("dailyWords");
+        clearEmptyOverride("quickGuess");
+        clearEmptyOverride("dailySynonyms");
+        const library = state.data.library || [];
+        const exists = library.some((item) => normalizeWord(item.word) === normalizeWord(entry.word));
+        if (!exists) {
+          library.push(entry);
+        }
+        state.data.library = library;
+      }
+
+      saveData();
+      renderList();
+      renderAllWords();
+      resetForm();
+      setStatus("Ordet er lagret.");
       return;
     }
+
     const emptyOverrideKey = `vokabul_admin_empty_${state.section}`;
     if (storage?.remove) {
       storage.remove(emptyOverrideKey);

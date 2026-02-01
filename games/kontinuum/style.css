@@ -104,6 +104,54 @@ body {
   color: #1f6f6c;
   box-shadow: 0 10px 18px rgba(43, 122, 120, 0.18);
 }
+.nav-dropdown {
+  position: relative;
+}
+
+.nav-dropdown-toggle {
+  background: transparent;
+  border: 0;
+  color: var(--muted);
+  padding: 8px 14px;
+  border-radius: 999px;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.nav-dropdown-toggle:hover,
+.nav-dropdown-toggle:focus-visible {
+  background: rgba(233, 107, 60, 0.12);
+  color: #b34720;
+  transform: translateY(-1px);
+}
+
+.nav-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  min-width: 220px;
+  background: #fffdf9;
+  border: 1px solid rgba(231, 217, 199, 0.9);
+  border-radius: 18px;
+  padding: 10px;
+  box-shadow: 0 16px 30px rgba(21, 18, 14, 0.12);
+  display: none;
+  flex-direction: column;
+  gap: 6px;
+  z-index: 60;
+}
+
+.nav-dropdown-menu a {
+  padding: 8px 12px;
+  border-radius: 12px;
+}
+
+.nav-dropdown:hover .nav-dropdown-menu,
+.nav-dropdown:focus-within .nav-dropdown-menu {
+  display: flex;
+}
 
 .title-serif {
   font-family: "Fraunces", "Times New Roman", serif;

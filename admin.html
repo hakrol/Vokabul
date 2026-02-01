@@ -17,11 +17,16 @@
     </a>
     <div class="nav-links" aria-label="Spillmeny">
       <a href="index.html">Hjem</a>
-      <a href="games/synonymspill/index.html">Synonymspill</a>
-      <a href="games/ordgjettespill/index.html">Ordgjettespill</a>
-      <a href="games/kontinuum/index.html">Kontinuum</a>
-      <a href="games/vokabularspill/index.html">Vokabularspill</a>
-      <a href="games/setningsvalg/index.html">Setningsvalg</a>
+      <div class="nav-dropdown">
+        <button class="nav-dropdown-toggle" type="button" aria-haspopup="true">Spill</button>
+        <div class="nav-dropdown-menu" role="menu">
+          <a href="games/synonymspill/index.html">Synonymspill</a>
+          <a href="games/ordgjettespill/index.html">Ordgjettespill</a>
+          <a href="games/kontinuum/index.html">Kontinuum</a>
+          <a href="games/vokabularspill/index.html">Vokabularspill</a>
+          <a href="games/setningsvalg/index.html">Setningsvalg</a>
+        </div>
+      </div>
       <a class="nav-home is-active" href="admin.html" aria-current="page">Admin</a>
     </div>
   </nav>
@@ -36,6 +41,7 @@
         <button class="admin-nav-item is-active" type="button" data-section="dailyWords" role="tab">Dagens ord</button>
         <button class="admin-nav-item" type="button" data-section="quickGuess" role="tab">Dagens gjett</button>
         <button class="admin-nav-item" type="button" data-section="dailySynonyms" role="tab">Dagens synonym</button>
+        <button class="admin-nav-item" type="button" data-section="addWord" role="tab">Legg til ord</button>
         <button class="admin-nav-item" type="button" data-section="allWords" role="tab">Alle ord</button>
       </div>
     </aside>
@@ -99,6 +105,24 @@
             <label for="admin-see">Se også</label>
             <input id="admin-see" name="see" type="text" autocomplete="off" />
             <span>Knytter ordet til et annet begrep i ordbanken.</span>
+          </div>
+                  <div class="admin-field admin-checks">
+            <label>Legg i lister</label>
+            <div class="admin-checks-grid">
+              <label class="admin-check">
+                <input type="checkbox" id="admin-include-daily" />
+                <span>Dagens ord</span>
+              </label>
+              <label class="admin-check">
+                <input type="checkbox" id="admin-include-quick" />
+                <span>Dagens gjett</span>
+              </label>
+              <label class="admin-check">
+                <input type="checkbox" id="admin-include-synonym" />
+                <span>Dagens synonym</span>
+              </label>
+            </div>
+            <span>Huk av for hvor ordet skal brukes. Ellers lagres det kun i ordbanken.</span>
           </div>
         </div>
 
