@@ -41,6 +41,7 @@
   const titleEl = document.getElementById("admin-title");
   const descriptionEl = document.getElementById("admin-description");
   const clearButton = document.getElementById("admin-clear");
+  const clearAllButton = document.getElementById("admin-clear-all");
   const form = document.getElementById("admin-form");
   const stateEl = document.getElementById("admin-state");
   const listEl = document.getElementById("admin-list");
@@ -229,11 +230,17 @@
   const renderList = () => {
     const list = getEffectiveList(state.section);
     const isDefault = (state.data[state.section] || []).length === 0;
+    const emptyOverrideKey = `vokabul_admin_empty_${state.section}`;
+    const isEmptyOverride = storage?.readJson
+      ? storage.readJson(emptyOverrideKey, false)
+      : localStorage.getItem(emptyOverrideKey) === "true";
     if (countEl) {
       if (!list.length) {
         countEl.textContent = "Ingen ord";
       } else if (isDefault) {
-        countEl.textContent = `${list.length} ord (standardliste)`;
+        countEl.textContent = isEmptyOverride
+          ? `${list.length} ord`
+          : `${list.length} ord (standardliste)`;
       } else {
         countEl.textContent = `${list.length} ord`;
       }
@@ -326,17 +333,24 @@
       deleteBtn.type = "button";
       deleteBtn.textContent = "Slett";
       deleteBtn.addEventListener("click", () => {
-        const ok = window.confirm("Slette \"" + entry.word + "\" fra listen?");
-        if (!ok) return;
         ensureAdminListSeeded(state.section);
         const listIndex = state.data[state.section].findIndex((item) => normalizeWord(item.word) === normalizeWord(entry.word));
         if (listIndex !== -1) {
           state.data[state.section].splice(listIndex, 1);
         }
+        if (state.data[state.section].length === 0) {
+          const emptyOverrideKey = `vokabul_admin_empty_${state.section}`;
+          if (storage?.writeJson) {
+            storage.writeJson(emptyOverrideKey, true);
+          } else {
+            localStorage.setItem(emptyOverrideKey, "true");
+          }
+        }
         saveData();
         renderList();
         renderAllWords();
         resetForm();
+        setStatus("Ordet er fjernet.");
       });
 
       actions.appendChild(editBtn);
@@ -348,9 +362,15 @@
   };
 
   const getEffectiveList = (section) => {
-    const list = state.data[section] || [];
-    if (list.length) {
-      return list;
+    if (state.data[section] && state.data[section].length) {
+      return state.data[section];
+    }
+    const emptyOverrideKey = `vokabul_admin_empty_${section}`;
+    const isEmptyOverride = storage?.readJson
+      ? storage.readJson(emptyOverrideKey, false)
+      : localStorage.getItem(emptyOverrideKey) === "true";
+    if (isEmptyOverride) {
+      return [];
     }
     return getDefaultListForSection(section);
   };
@@ -386,7 +406,18 @@
 
   const setWordIncluded = (entry, section, include) => {
     if (!entry) return;
-    ensureAdminListSeeded(section);
+    const emptyOverrideKey = `vokabul_admin_empty_${section}`;
+    const isEmptyOverride = storage?.readJson
+      ? storage.readJson(emptyOverrideKey, false)
+      : localStorage.getItem(emptyOverrideKey) === "true";
+    if (!isEmptyOverride) {
+      ensureAdminListSeeded(section);
+    }
+    if (storage?.remove) {
+      storage.remove(emptyOverrideKey);
+    } else {
+      localStorage.removeItem(emptyOverrideKey);
+    }
     const list = state.data[section];
     const normalized = normalizeWord(entry.word);
     const index = list.findIndex((item) => normalizeWord(item.word) === normalized);
@@ -396,6 +427,13 @@
       }
     } else if (index !== -1) {
       list.splice(index, 1);
+      if (list.length === 0) {
+        if (storage?.writeJson) {
+          storage.writeJson(emptyOverrideKey, true);
+        } else {
+          localStorage.setItem(emptyOverrideKey, "true");
+        }
+      }
     }
     saveData();
     if (state.section === section) {
@@ -500,7 +538,15 @@
         const input = document.createElement("input");
         input.type = "checkbox";
         input.checked = effectiveSets[section].has(normalizeWord(entry.word));
+        if (section === "dailySynonyms" && (!entry.synonyms || entry.synonyms.length === 0)) {
+          input.checked = false;
+          input.disabled = true;
+          wrapper.title = "Krever synonymer for Dagens synonym.";
+        }
         input.addEventListener("change", () => {
+          if (input.disabled) {
+            return;
+          }
           setWordIncluded(entry, section, input.checked);
         });
         const text = document.createElement("span");
@@ -559,6 +605,9 @@
     if (clearButton) {
       clearButton.style.display = isAllWords ? "none" : "";
     }
+    if (clearAllButton) {
+      clearAllButton.style.display = isAllWords ? "none" : "";
+    }
     if (!isAllWords) {
       resetForm();
       renderList();
@@ -595,10 +644,12 @@
     if (state.section === "allWords") {
       return;
     }
-    const ok = window.confirm(
-      "Fjerne alle egne ord i denne seksjonen? Da brukes standardlisten igjen."
-    );
-    if (!ok) return;
+    const emptyOverrideKey = `vokabul_admin_empty_${state.section}`;
+    if (storage?.remove) {
+      storage.remove(emptyOverrideKey);
+    } else {
+      localStorage.removeItem(emptyOverrideKey);
+    }
     state.data[state.section] = [];
     saveData();
     renderList();
@@ -606,6 +657,26 @@
     resetForm();
     setStatus("Standardlisten er aktivert.");
   });
+
+  if (clearAllButton) {
+    clearAllButton.addEventListener("click", () => {
+      if (state.section === "allWords") {
+        return;
+      }
+      const emptyOverrideKey = `vokabul_admin_empty_${state.section}`;
+      if (storage?.writeJson) {
+        storage.writeJson(emptyOverrideKey, true);
+      } else {
+        localStorage.setItem(emptyOverrideKey, "true");
+      }
+      state.data[state.section] = [];
+      saveData();
+      renderList();
+      renderAllWords();
+      resetForm();
+      setStatus("Listen er tømt.");
+    });
+  }
 
   cancelButton.addEventListener("click", () => {
     resetForm();
@@ -618,6 +689,12 @@
     if (error) {
       setStatus(error);
       return;
+    }
+    const emptyOverrideKey = `vokabul_admin_empty_${state.section}`;
+    if (storage?.remove) {
+      storage.remove(emptyOverrideKey);
+    } else {
+      localStorage.removeItem(emptyOverrideKey);
     }
     if (state.editIndex !== null) {
       state.data[state.section][state.editIndex] = entry;

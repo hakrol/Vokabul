@@ -501,7 +501,7 @@ body {
   bottom: 8px;
   height: 3px;
   border-radius: 999px;
-  background: rgba(27, 26, 23, 0.25);
+  background: transparent;
 }
 
 .quick-slot.is-active {
@@ -521,7 +521,7 @@ body {
 }
 
 .quick-slots.is-locked .quick-slot::after {
-  background: rgba(43, 122, 120, 0.35);
+  background: transparent;
 }
 
 .btn.secondary {
