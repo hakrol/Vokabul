@@ -18,6 +18,7 @@
         SYNONYM_STORE: STORAGE_PREFIX + "synonymspill_store",
         SYNONYM_ATTEMPTS: STORAGE_PREFIX + "synonymspill_attempts",
         KONTINUUM_STATS: STORAGE_PREFIX + "kontinuum_stats",
+        ADMIN_WORDS: STORAGE_PREFIX + "admin_words",
     };
 
     function canUseStorage() {

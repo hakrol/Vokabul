@@ -11,6 +11,20 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body class="min-h-screen">
+  <nav class="site-nav">
+    <a class="brand" href="../../index.html" aria-label="Hjem">
+      <span class="brand-icon" aria-hidden="true">V</span>
+      <span class="brand-name">Vokab</span>
+    </a>
+    <div class="nav-links" aria-label="Spillmeny">
+      <a class="nav-home" href="../../index.html">Hjem</a>
+      <a href="../synonymspill/index.html">Synonymspill</a>
+      <a href="../ordgjettespill/index.html">Ordgjettespill</a>
+      <a class="is-active" href="../kontinuum/index.html" aria-current="page">Kontinuum</a>
+      <a href="../vokabularspill/index.html">Vokabularspill</a>
+      <a href="../setningsvalg/index.html">Setningsvalg</a>
+    </div>
+  </nav>
   <main class="mx-auto w-full max-w-5xl px-4 py-8">
     <header class="mb-8 flex flex-wrap items-center justify-between gap-4">
       <div>
@@ -21,12 +35,6 @@
         <div class="pill-tag text-sm">
           Rekord: <strong id="bestStat">0</strong>
         </div>
-        <a
-          class="btn btn-ghost text-sm"
-          href="../../index.html"
-        >
-          Spillhub
-        </a>
       </div>
     </header>
 

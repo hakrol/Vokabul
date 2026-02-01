@@ -1,15 +1,111 @@
-const data = window.VokabulWordsData || {};
+﻿const data = window.VokabulWordsData || {};
 const nouns = data.nouns || [];
 const adjectives = data.adjectives || [];
 const verbs = data.verbs || [];
 
+const baseWordPool = [...nouns, ...adjectives, ...verbs];
+
 // Preserve the original daily rotation order while grouping by word class.
-const allWords = [
+const baseAllWords = [
   ...nouns.slice(0, 8),
   ...adjectives,
   ...nouns.slice(8),
   ...verbs
-];
+].filter((word) => word?.useInDaily === true);
+
+let wordPool = [...baseWordPool];
+let allWords = [...baseAllWords];
+let quickGuessWords = baseWordPool.filter((word) => word?.useInQuickGuess === true);
+let dailySynonymWords = baseAllWords.filter(
+  (word) => word?.useInDailySynonym === true && Array.isArray(word.synonyms) && word.synonyms.length
+);
+
+function normalizeGuess(value) {
+  return String(value || "").toLowerCase().trim().replace(/\s+/g, "");
+}
+
+const storage = window.VokabulStorage;
+if (storage) {
+  storage.migrateStorageIfNeeded();
+}
+
+const ADMIN_WORDS_KEY = storage?.keys?.ADMIN_WORDS || "vokabul_admin_words";
+const quickGuessStorageKey = storage?.keys?.QUICK_GUESS || "vokabulQuickGuess";
+const dailySynonymStorageKey = storage?.keys?.DAILY_SYNONYM || "vokabulDailySynonym";
+
+const sanitizeText = (value) => String(value || "").trim();
+const sanitizeList = (value) =>
+  Array.isArray(value)
+    ? value
+        .map((item) => String(item || "").trim())
+        .filter((item) => item.length)
+    : [];
+
+const sanitizeWordEntry = (entry) => {
+  if (!entry || !entry.word) {
+    return null;
+  }
+  const word = sanitizeText(entry.word);
+  if (!word) {
+    return null;
+  }
+  const desc = sanitizeText(entry.desc || entry.meaning);
+  const meaning = sanitizeText(entry.meaning || entry.desc);
+  return {
+    word,
+    desc: desc || meaning,
+    meaning: meaning || desc,
+    usage: sanitizeText(entry.usage),
+    type: sanitizeText(entry.type),
+    examples: sanitizeList(entry.examples),
+    synonyms: sanitizeList(entry.synonyms),
+    see: sanitizeText(entry.see)
+  };
+};
+
+const loadAdminWordData = () => {
+  let raw = null;
+  try {
+    if (storage?.readJson) {
+      raw = storage.readJson(ADMIN_WORDS_KEY, null);
+    } else {
+      const stored = localStorage.getItem(ADMIN_WORDS_KEY);
+      raw = stored ? JSON.parse(stored) : null;
+    }
+  } catch (error) {
+    raw = null;
+  }
+
+  const normalizeList = (value) =>
+    Array.isArray(value) ? value.map(sanitizeWordEntry).filter(Boolean) : [];
+
+  return {
+    dailyWords: normalizeList(raw?.dailyWords),
+    quickGuess: normalizeList(raw?.quickGuess),
+    dailySynonyms: normalizeList(raw?.dailySynonyms)
+  };
+};
+
+const adminData = loadAdminWordData();
+const adminDailyWords = adminData.dailyWords;
+const adminQuickGuessWords = adminData.quickGuess.filter((word) => word.desc);
+const adminDailySynonymWords = adminData.dailySynonyms.filter(
+  (word) => Array.isArray(word.synonyms) && word.synonyms.length
+);
+
+const adminWordPool = [...adminDailyWords, ...adminQuickGuessWords, ...adminDailySynonymWords];
+if (adminWordPool.length) {
+  wordPool = [...wordPool, ...adminWordPool];
+}
+if (adminDailyWords.length) {
+  allWords = adminDailyWords;
+}
+if (adminQuickGuessWords.length) {
+  quickGuessWords = adminQuickGuessWords;
+}
+if (adminDailySynonymWords.length) {
+  dailySynonymWords = adminDailySynonymWords;
+}
 
 const exported = {
   adjectives,
@@ -18,313 +114,32 @@ const exported = {
   verbs
 };
 
-const dailySynonymDetails = {
-  mystifisering: {
-    title: "Mystifisering",
-    meaning: "Å gjøre noe uklart eller hemmelighetsfullt.",
-    usage: "Brukes når språk eller handlinger skaper forvirring.",
-    example: "Forklaringen endte i mystifisering.",
-    type: "substantiv"
-  },
-  fordunkling: {
-    title: "Fordunkling",
-    meaning: "Å gjøre noe mørkere eller mindre klart.",
-    usage: "Brukes om å tilsløre fakta eller mening.",
-    example: "Debatten bar preg av fordunkling.",
-    type: "substantiv"
-  },
-  tilsløring: {
-    title: "Tilsløring",
-    meaning: "Det å skjule eller dekke over.",
-    usage: "Brukes om å legge lokk på sannheten.",
-    example: "Rapporten var full av tilsløring.",
-    type: "substantiv"
-  },
-  rådvillhet: {
-    title: "Rådvillhet",
-    meaning: "Mangel på råd; usikkerhet.",
-    usage: "Brukes når man ikke vet hva man skal gjøre.",
-    example: "Hun stod i rådvillhet.",
-    type: "substantiv"
-  },
-  tvil: {
-    title: "Tvil",
-    meaning: "Usikkerhet om noe er sant eller riktig.",
-    usage: "Brukes om å være i tvil.",
-    example: "Han kjente tvil før beslutningen.",
-    type: "substantiv"
-  },
-  uføre: {
-    title: "Uføre",
-    meaning: "Fastlåst situasjon uten god løsning.",
-    usage: "Brukes om problemer der alle valg er dårlige.",
-    example: "Forhandlingene havnet i et uføre.",
-    type: "substantiv"
-  },
-  tungsinn: {
-    title: "Tungsinn",
-    meaning: "Vedvarende tristhet.",
-    usage: "Brukes om stille, tung stemning.",
-    example: "Tungsinn la seg over rommet.",
-    type: "substantiv"
-  },
-  vemod: {
-    title: "Vemod",
-    meaning: "Mildt, stillferdig sorgpreg.",
-    usage: "Brukes om bittersøt tristhet.",
-    example: "Det var et snev av vemod i avskjeden.",
-    type: "substantiv"
-  },
-  sorgmod: {
-    title: "Sorgmod",
-    meaning: "Tristhet med ettertenksomhet.",
-    usage: "Brukes om rolig, dyp sorg.",
-    example: "Hun bar et sorgmod i blikket.",
-    type: "substantiv"
-  },
-  staffasje: {
-    title: "Staffasje",
-    meaning: "Ytre pynt eller dekor som skjuler innhold.",
-    usage: "Brukes om overflatepynt uten substans.",
-    example: "Tallene var staffasje for en tom plan.",
-    type: "substantiv"
-  },
-  prydspråk: {
-    title: "Prydspråk",
-    meaning: "Pyntet og blomstrende språk.",
-    usage: "Brukes når ord pyntes mer enn innholdet tåler.",
-    example: "Talen var full av prydspråk.",
-    type: "substantiv"
-  },
-  glansbilde: {
-    title: "Glansbilde",
-    meaning: "Et idealisert og polert bilde.",
-    usage: "Brukes om noe som fremstilles for positivt.",
-    example: "Historien ble et glansbilde av virkeligheten.",
-    type: "substantiv"
-  },
-  flertydighet: {
-    title: "Flertydighet",
-    meaning: "At noe kan forstås på flere måter.",
-    usage: "Brukes om ord eller utsagn med flere tolkninger.",
-    example: "Flertydigheten skapte uenighet.",
-    type: "substantiv"
-  },
-  uklarhet: {
-    title: "Uklarhet",
-    meaning: "Mangel på klarhet.",
-    usage: "Brukes når noe er utydelig.",
-    example: "Uklarhet i avtalen ga problemer.",
-    type: "substantiv"
-  },
-  dobbeltbetydning: {
-    title: "Dobbeltbetydning",
-    meaning: "To mulige betydninger i samme uttrykk.",
-    usage: "Brukes i ordspill eller tvetydige utsagn.",
-    example: "Han la inn en bevisst dobbeltbetydning.",
-    type: "substantiv"
-  },
-  maskering: {
-    title: "Maskering",
-    meaning: "Det å skjule eller kamuflere.",
-    usage: "Brukes om å dekke over følelser eller intensjoner.",
-    example: "Et smil kan være en maskering.",
-    type: "substantiv"
-  },
-  skinn: {
-    title: "Skinn",
-    meaning: "Et ytre inntrykk som ikke stemmer.",
-    usage: "Brukes om falsk fasade.",
-    example: "Bak skinnet var han usikker.",
-    type: "substantiv"
-  },
-  hykleri: {
-    title: "Hykleri",
-    meaning: "Å si én ting og gjøre en annen.",
-    usage: "Brukes om falsk moralsk holdning.",
-    example: "Han ble tatt i hykleri.",
-    type: "substantiv"
-  },
-  åndsklima: {
-    title: "Åndsklima",
-    meaning: "Ideene og holdningene som preger en tid.",
-    usage: "Brukes om den kulturelle stemningen i en epoke.",
-    example: "Boken fanger åndsklimaet i mellomkrigstiden.",
-    type: "substantiv"
-  },
-  tidsklima: {
-    title: "Tidsklima",
-    meaning: "Samfunnets generelle holdninger i en periode.",
-    usage: "Brukes om stemninger og strømninger i tiden.",
-    example: "Tidsklimaet var preget av optimisme.",
-    type: "substantiv"
-  },
-  epokekarakter: {
-    title: "Epokekarakter",
-    meaning: "Det som kjennetegner en epoke.",
-    usage: "Brukes om særtrekk ved en tidsperiode.",
-    example: "Arkitekturen har tydelig epokekarakter.",
-    type: "substantiv"
-  },
-  skuffelse: {
-    title: "Skuffelse",
-    meaning: "Følelse av å bli skuffet.",
-    usage: "Brukes når forventninger ikke innfris.",
-    example: "Skuffelsen var stor.",
-    type: "substantiv"
-  },
-  avfortryllelse: {
-    title: "Avfortryllelse",
-    meaning: "Tap av magi eller idealisering.",
-    usage: "Brukes om å se noe mer nøkternt.",
-    example: "Avfortryllelsen kom etterpå.",
-    type: "substantiv"
-  },
-  oppvåkning: {
-    title: "Oppvåkning",
-    meaning: "Plutselig innsikt eller erkjennelse.",
-    usage: "Brukes om å se ting klarere.",
-    example: "Det ble en brå oppvåkning.",
-    type: "substantiv"
-  },
-  likegyldig: {
-    title: "Likegyldig",
-    meaning: "Uengasjert og uten interesse.",
-    usage: "Brukes om personer som ikke bryr seg.",
-    example: "Han var likegyldig til resultatet.",
-    type: "adjektiv"
-  },
-  passiv: {
-    title: "Passiv",
-    meaning: "Uten initiativ eller handling.",
-    usage: "Brukes om noen som ikke deltar aktivt.",
-    example: "Publikum ble passivt.",
-    type: "adjektiv"
-  },
-  uengasjert: {
-    title: "Uengasjert",
-    meaning: "Mangler interesse eller innlevelse.",
-    usage: "Brukes om fravær av engasjement.",
-    example: "Hun virket uengasjert i møtet.",
-    type: "adjektiv"
-  },
-  ettertanke: {
-    title: "Ettertanke",
-    meaning: "Refleksjon i etterkant.",
-    usage: "Brukes når man tenker tilbake på noe.",
-    example: "Med ettertanke innså han feilen.",
-    type: "substantiv"
-  },
-  etterklokskap: {
-    title: "Etterklokskap",
-    meaning: "Klokskap som kommer for sent.",
-    usage: "Brukes når man forstår etterpå.",
-    example: "Etterklokskap endrer lite.",
-    type: "substantiv"
-  },
-  fasitvisdom: {
-    title: "Fasitvisdom",
-    meaning: "Å tro man vet fasiten i ettertid.",
-    usage: "Brukes om skråsikker etterpåklokskap.",
-    example: "Fasitvisdom er lett når alt er over.",
-    type: "substantiv"
+const wordLookup = new Map(
+  wordPool.map((word) => [normalizeGuess(String(word.word || "")), word])
+);
+
+const getWordDetails = (wordKey) => {
+  const normalized = normalizeGuess(wordKey);
+  if (!normalized) {
+    return null;
   }
+  const wordData = wordLookup.get(normalized);
+  if (!wordData) {
+    return null;
+  }
+  return {
+    title: wordData.word,
+    meaning: wordData.meaning || wordData.desc || "",
+    usage: wordData.usage || "",
+    example: (wordData.examples && wordData.examples[0]) || wordData.example || "",
+    type: wordData.type || ""
+  };
 };
 
-const quickGuessWords = [
-  {
-    word: "glimtminne",
-    desc: "En liten scene som plutselig dukker opp fra barndommen.",
-    type: "substantiv",
-    meaning: "Et kort, klart minne som plutselig blusser opp.",
-    usage: "Brukes om små tilbakeblikk fra barndommen eller bestemte øyeblikk.",
-    example: "På vei hjem fikk hun et glimtminne av skolegården.",
-    see: "minne"
-  },
-  {
-    word: "lydskygge",
-    desc: "Et ekko som legger seg bak lyden og henger igjen.",
-    type: "substantiv",
-    meaning: "En svak etterklang som henger igjen etter en lyd.",
-    usage: "Brukes om rom med lang etterklang eller når en lyd ligger i bakgrunnen.",
-    example: "I kirken lå en lydskygge lenge etter orgeltonen.",
-    see: "ekko"
-  },
-  {
-    word: "stillebry",
-    desc: "En rolig omsorg som ikke sies høyt.",
-    type: "substantiv",
-    meaning: "Still og varsom omsorg.",
-    usage: "Brukes om støtte som vises uten store ord.",
-    example: "Hun ga ham en stillebry med et lite nikk.",
-    see: "omsorg"
-  },
-  {
-    word: "gladtrass",
-    desc: "Når man nekter å gi opp, men smiler mens man gjør det.",
-    type: "substantiv",
-    meaning: "En sta vilje som ledsages av glede.",
-    usage: "Brukes når noen nekter å gi opp, men gjør det med smil.",
-    example: "Hun møtte motgangen med ren gladtrass.",
-    see: "trass"
-  },
-  {
-    word: "værlukt",
-    desc: "Duften i lufta som varsler at været er på vei.",
-    type: "substantiv",
-    meaning: "Lukt i lufta som varsler værskifte.",
-    usage: "Brukes om duften før regn, snø eller torden.",
-    example: "Det lå værlukt over fjorden.",
-    see: "regn"
-  },
-  {
-    word: "tankeslør",
-    desc: "En tåke av tanker som gjør alt litt uklart.",
-    type: "substantiv",
-    meaning: "Et uklart lag av tanker som gjør det vanskelig å fokusere.",
-    usage: "Brukes om mental tåke eller distraksjon.",
-    example: "Et tankeslør la seg over henne etter en lang dag.",
-    see: "tåke"
-  },
-  {
-    word: "raskro",
-    desc: "En kort pause som gir energi til neste runde.",
-    type: "substantiv",
-    meaning: "En kort pause som gir ro og ny energi.",
-    usage: "Brukes om små avbrekk i en travel dag.",
-    example: "De tok en raskro før møtet.",
-    see: "pause"
-  },
-  {
-    word: "taktbytte",
-    desc: "Når du skifter tempo og rytme i det du gjør.",
-    type: "substantiv",
-    meaning: "Skifte i tempo eller rytme.",
-    usage: "Brukes om endring i arbeidsflyt, musikk eller aktivitet.",
-    example: "Et tydelig taktbytte fikk publikum til å våkne.",
-    see: "tempo"
-  },
-  {
-    word: "kveldsvind",
-    desc: "En mild bris som varsler at dagen er på hell.",
-    type: "substantiv",
-    meaning: "Mild bris som kommer når kvelden nærmer seg.",
-    usage: "Brukes om sval luft i skumringen.",
-    example: "Kveldsvind kjølte ned terrassen.",
-    see: "bris"
-  },
-  {
-    word: "ordfloke",
-    desc: "Når setningen roter seg til og du må starte på nytt.",
-    type: "substantiv",
-    meaning: "En setning eller tanke som roter seg til.",
-    usage: "Brukes når ordene stokker seg eller blir uklare.",
-    example: "Han lo av sin egen ordfloke.",
-    see: "kluss"
-  }
-];
-
 function getDailyWord(date, words = allWords) {
+  if (!Array.isArray(words) || words.length === 0) {
+    return null;
+  }
   const daysSinceEpoch = Math.floor(date.getTime() / 86400000);
   return words[daysSinceEpoch % words.length];
 }
@@ -427,8 +242,11 @@ const ensureDailySynonymModal = () => {
 };
 
 const getDailySynonymDetails = (wordKey, baseWord) => {
-  const normalized = String(wordKey || "").toLowerCase();
-  return dailySynonymDetails[normalized] || {
+  const details = getWordDetails(wordKey);
+  if (details) {
+    return details;
+  }
+  return {
     title: wordKey || "Synonym",
     meaning: baseWord ? "Synonym til " + baseWord + "." : "Synonym til dagens ord.",
     usage: "",
@@ -488,8 +306,8 @@ const wordClassDetails = {
   substantiv: {
     title: "Substantiv",
     meaning: "Ord som navngir ting, personer, steder eller ideer.",
-    usage: "Brukes ofte med en/ei/et og kan bøyes i bestemt/ubestemt.",
-    example: "En bok, ei dør, et hus.",
+    usage: "Brukes ofte med en/ei/et og kan bÃ¸yes i bestemt/ubestemt.",
+    example: "En bok, ei dÃ¸r, et hus.",
     type: "Ordklasse"
   },
   "substantivisk uttrykk": {
@@ -502,49 +320,49 @@ const wordClassDetails = {
   adjektiv: {
     title: "Adjektiv",
     meaning: "Ord som beskriver egenskaper ved substantiv.",
-    usage: "Bøyes ofte etter kjønn, tall og bestemt form.",
-    example: "En rød bil, et rødt hus, røde biler.",
+    usage: "BÃ¸yes ofte etter kjÃ¸nn, tall og bestemt form.",
+    example: "En rÃ¸d bil, et rÃ¸dt hus, rÃ¸de biler.",
     type: "Ordklasse"
   },
   verb: {
     title: "Verb",
     meaning: "Ord som uttrykker handling eller tilstand.",
-    usage: "Bøyes i tid og kan ha infinitiv, presens, preteritum.",
-    example: "å løpe, løper, løp.",
+    usage: "BÃ¸yes i tid og kan ha infinitiv, presens, preteritum.",
+    example: "Ã¥ lÃ¸pe, lÃ¸per, lÃ¸p.",
     type: "Ordklasse"
   },
   adverb: {
     title: "Adverb",
-    meaning: "Ord som beskriver hvordan, når eller hvor noe skjer.",
-    usage: "Bøyes ikke og kan ofte flyttes i setningen.",
-    example: "Han løp raskt, hun kommer snart.",
+    meaning: "Ord som beskriver hvordan, nÃ¥r eller hvor noe skjer.",
+    usage: "BÃ¸yes ikke og kan ofte flyttes i setningen.",
+    example: "Han lÃ¸p raskt, hun kommer snart.",
     type: "Ordklasse"
   },
   preposisjon: {
     title: "Preposisjon",
     meaning: "Ord som viser forhold mellom andre ord.",
-    usage: "Står ofte foran substantiv eller pronomen.",
-    example: "på bordet, under stolen.",
+    usage: "StÃ¥r ofte foran substantiv eller pronomen.",
+    example: "pÃ¥ bordet, under stolen.",
     type: "Ordklasse"
   },
   pronomen: {
     title: "Pronomen",
-    meaning: "Ord som står i stedet for substantiv.",
-    usage: "Bøyes etter person og kasus.",
+    meaning: "Ord som stÃ¥r i stedet for substantiv.",
+    usage: "BÃ¸yes etter person og kasus.",
     example: "jeg, du, han, den.",
     type: "Ordklasse"
   },
   konjunksjon: {
     title: "Konjunksjon",
     meaning: "Binder sammen ord eller setninger.",
-    usage: "Står mellom setningsledd eller helsetninger.",
+    usage: "StÃ¥r mellom setningsledd eller helsetninger.",
     example: "og, men, eller.",
     type: "Ordklasse"
   },
   interjeksjon: {
     title: "Interjeksjon",
-    meaning: "Utrop eller uttrykk som viser følelse.",
-    usage: "Står ofte alene i setningen.",
+    meaning: "Utrop eller uttrykk som viser fÃ¸lelse.",
+    usage: "StÃ¥r ofte alene i setningen.",
     example: "oi, ja, hurra.",
     type: "Ordklasse"
   }
@@ -635,7 +453,7 @@ const getWordClassDetails = (wordClass) => {
   const normalized = String(wordClass || "").toLowerCase();
   return wordClassDetails[normalized] || {
     title: wordClass || "Ordklasse",
-    meaning: "Vi har ikke en forklaring klar for denne ordklassen ennå.",
+    meaning: "Vi har ikke en forklaring klar for denne ordklassen ennÃ¥.",
     usage: "",
     example: "",
     type: ""
@@ -694,6 +512,26 @@ function loadDailyWord() {
 
   const today = new Date();
   const dailyWord = getDailyWord(today);
+
+  if (!dailyWord) {
+    titleEl.textContent = "Ingen ord tilgjengelig";
+    descEl.textContent = "Legg til ord i adminpanelet for å aktivere Dagens ord.";
+    if (examplesEl) {
+      examplesEl.innerHTML = "";
+    }
+    if (synonymsEl) {
+      synonymsEl.innerHTML = "";
+    }
+    metaEl.textContent = "";
+    if (dateEl) {
+      dateEl.textContent = today.toLocaleDateString("no-NO", {
+        day: "2-digit",
+        month: "long",
+        year: "numeric"
+      });
+    }
+    return;
+  }
 
   titleEl.textContent = dailyWord.word;
   descEl.textContent = dailyWord.desc;
@@ -763,16 +601,6 @@ function loadDailyWord() {
   });
 }
 
-function normalizeGuess(value) {
-  return value.toLowerCase().trim().replace(/\s+/g, "");
-}
-
-const storage = window.VokabulStorage;
-if (storage) {
-  storage.migrateStorageIfNeeded();
-}
-const quickGuessStorageKey = storage?.keys?.QUICK_GUESS || "vokabulQuickGuess";
-
 function getTodayKey(date) {
   return date.toISOString().slice(0, 10);
 }
@@ -818,6 +646,47 @@ function storeQuickGuessState(todayKey, status) {
   }
 }
 
+function loadDailySynonymState(todayKey) {
+  try {
+    let data = null;
+    if (storage?.readJson) {
+      data = storage.readJson(dailySynonymStorageKey, null);
+    } else {
+      const raw = localStorage.getItem(dailySynonymStorageKey);
+      data = raw ? JSON.parse(raw) : null;
+    }
+    if (!data) {
+      return null;
+    }
+    if (data && data.date === todayKey && (data.status === "solved" || data.status === "revealed")) {
+      return data;
+    }
+  } catch (error) {
+    return null;
+  }
+  return null;
+}
+
+function storeDailySynonymState(todayKey, status) {
+  try {
+    if (!status) {
+      if (storage?.remove) {
+        storage.remove(dailySynonymStorageKey);
+      } else {
+        localStorage.removeItem(dailySynonymStorageKey);
+      }
+      return;
+    }
+    if (storage?.writeJson) {
+      storage.writeJson(dailySynonymStorageKey, { date: todayKey, status });
+      return;
+    }
+    localStorage.setItem(dailySynonymStorageKey, JSON.stringify({ date: todayKey, status }));
+  } catch (error) {
+    return;
+  }
+}
+
 function loadQuickGuess() {
   const clueEl = document.getElementById("quick-clue");
   const slotsEl = document.getElementById("quick-slots");
@@ -826,6 +695,7 @@ function loadQuickGuess() {
   const revealEl = document.getElementById("quick-reveal");
   const resetEl = document.getElementById("quick-reset");
   const feedbackEl = document.getElementById("quick-feedback");
+  const cardEl = clueEl?.closest(".quick-card") || document.querySelector("#dagens-gjett .quick-card");
 
   if (!clueEl || !slotsEl || !buttonEl || !revealEl || !resetEl || !feedbackEl) {
     return;
@@ -834,6 +704,15 @@ function loadQuickGuess() {
   const today = new Date();
   const todayKey = getTodayKey(today);
   const quickWord = getDailyWord(today, quickGuessWords);
+  if (!quickWord) {
+    clueEl.textContent = "Ingen oppgave tilgjengelig.";
+    slotsEl.setAttribute("aria-disabled", "true");
+    slotsEl.classList.add("is-locked");
+    buttonEl.style.display = "none";
+    revealEl.style.display = "none";
+    resetEl.style.display = "none";
+    return;
+  }
   clueEl.textContent = quickWord.desc;
   const answerLetters = Array.from(quickWord.word);
   const guessLetters = answerLetters.map(() => "");
@@ -869,81 +748,7 @@ function loadQuickGuess() {
       }
     }
   };
-
-  const relatedWordDetails = {
-    minne: {
-      title: "Minne",
-      meaning: "Et inntrykk eller en erfaring som blir liggende igjen i bevisstheten.",
-      usage: "Brukes om noe man husker fra opplevelser, personer eller steder.",
-      example: "Hun hadde et klart minne fra sommerferien.",
-      type: "substantiv"
-    },
-    ekko: {
-      title: "Ekko",
-      meaning: "En lyd som reflekteres tilbake og gjentas i rommet.",
-      usage: "Brukes om gjenklang eller spor som henger igjen.",
-      example: "Roet kom med et ekko mellom veggene.",
-      type: "substantiv"
-    },
-    omsorg: {
-      title: "Omsorg",
-      meaning: "Varm omtanke og handlinger som tar vare på noen.",
-      usage: "Brukes om støtte, hjelp og ansvar for andre.",
-      example: "Hun viste omsorg ved å lytte og hjelpe.",
-      type: "substantiv"
-    },
-    trass: {
-      title: "Trass",
-      meaning: "Sta motstand mot noe, ofte drevet av vilje og stolthet.",
-      usage: "Brukes når man nekter å gi seg eller følge råd.",
-      example: "Han svarte i ren trass.",
-      type: "substantiv"
-    },
-    regn: {
-      title: "Regn",
-      meaning: "Vanndråper som faller fra skyer og fukter luft og jord.",
-      usage: "Brukes om vær der det kommer nedbør.",
-      example: "Regnet trommet mot vinduet.",
-      type: "substantiv"
-    },
-    tåke: {
-      title: "Tåke",
-      meaning: "Små vanndråper som henger i lufta og gjør sikten uklar.",
-      usage: "Brukes om dårlig sikt eller mental uklarhet.",
-      example: "Tåken lå tett over fjorden.",
-      type: "substantiv"
-    },
-    pause: {
-      title: "Pause",
-      meaning: "Et kort opphold som gir rom for ro og ny energi.",
-      usage: "Brukes om et avbrekk i arbeid, spill eller aktivitet.",
-      example: "Vi tok en kort pause før vi fortsatte.",
-      type: "substantiv"
-    },
-    tempo: {
-      title: "Tempo",
-      meaning: "Farten eller rytmen i det som skjer.",
-      usage: "Brukes om hvor raskt noe foregår.",
-      example: "Laget holdt et høyt tempo.",
-      type: "substantiv"
-    },
-    bris: {
-      title: "Bris",
-      meaning: "En svak og behagelig vind.",
-      usage: "Brukes om lett vind som kjennes sval.",
-      example: "En mild bris kom inn fra sjøen.",
-      type: "substantiv"
-    },
-    kluss: {
-      title: "Kluss",
-      meaning: "Rot eller forvirring som gjør noe vanskelig å få til.",
-      usage: "Brukes om noe som blir kronglete eller feil.",
-      example: "Det ble kluss med planene.",
-      type: "substantiv"
-    }
-  };
-
-  const ensureRelatedModal = () => {
+const ensureRelatedModal = () => {
     if (relatedModal) {
       return relatedModal;
     }
@@ -1036,10 +841,13 @@ function loadQuickGuess() {
   };
 
   const getRelatedDetails = (wordKey) => {
-    const normalized = String(wordKey || "").toLowerCase();
-    return relatedWordDetails[normalized] || {
+    const details = getWordDetails(wordKey);
+    if (details) {
+      return details;
+    }
+    return {
       title: wordKey || "Ord",
-      meaning: "Vi har ikke en forklaring klar for dette ordet ennå.",
+      meaning: "Vi har ikke en forklaring klar for dette ordet ennÃ¥.",
       usage: "",
       example: "",
       type: ""
@@ -1140,7 +948,8 @@ function loadQuickGuess() {
       detail.appendChild(see);
     }
 
-    if (wordData.example) {
+    const exampleValue = (wordData.examples && wordData.examples[0]) || wordData.example;
+    if (exampleValue) {
       const exampleTitle = document.createElement("div");
       exampleTitle.className = "quick-detail-heading";
       exampleTitle.textContent = "Eksempel";
@@ -1149,7 +958,7 @@ function loadQuickGuess() {
       const example = document.createElement("p");
       example.className = "quick-detail-example";
       const exampleText = document.createElement("em");
-      exampleText.textContent = wordData.example;
+      exampleText.textContent = exampleValue;
       example.appendChild(exampleText);
       detail.appendChild(example);
     }
@@ -1228,9 +1037,13 @@ function loadQuickGuess() {
     renderSlots();
     const detail = buildQuickDetail(quickWord);
     if (status === "solved") {
-      setFeedback("success", "Du klarte dagens gjett – ordet er «" + quickWord.word + "».", detail);
+      setFeedback("success", "Du klarte dagens gjett - ordet er \"" + quickWord.word + "\".", detail);
     } else {
-      setFeedback("warn", "Ordet er «" + quickWord.word + "».", detail);
+      setFeedback("warn", "Ordet er \"" + quickWord.word + "\".", detail);
+    }
+    if (cardEl) {
+      cardEl.classList.remove("is-solved", "is-revealed");
+      cardEl.classList.add(status === "solved" ? "is-solved" : "is-revealed");
     }
     lockInput();
   };
@@ -1240,6 +1053,9 @@ function loadQuickGuess() {
     for (let i = 0; i < guessLetters.length; i += 1) {
       guessLetters[i] = "";
     }
+    if (cardEl) {
+      cardEl.classList.remove("is-solved", "is-revealed");
+    }
     unlockInput();
     setFeedback("warn", "Dagens gjett er resatt.");
     renderSlots();
@@ -1248,7 +1064,7 @@ function loadQuickGuess() {
 
   const checkGuess = () => {
     if (guessLetters.includes("")) {
-      setFeedback("warn", "Fyll inn alle bokstavene først.");
+      setFeedback("warn", "Fyll inn alle bokstavene fÃ¸rst.");
       return;
     }
 
@@ -1256,7 +1072,7 @@ function loadQuickGuess() {
     const answer = normalizeGuess(quickWord.word);
 
     if (!guess) {
-      setFeedback("warn", "Skriv inn et ord først.");
+      setFeedback("warn", "Skriv inn et ord fÃ¸rst.");
       return;
     }
 
@@ -1356,12 +1172,337 @@ function loadQuickGuess() {
   renderSlots();
 }
 
+function loadDailySynonymGame() {
+  const wordEl = document.getElementById("synonym-word");
+  const slotsEl = document.getElementById("synonym-slots");
+  const inputEl = document.getElementById("synonym-input");
+  const buttonEl = document.getElementById("synonym-check");
+  const revealEl = document.getElementById("synonym-reveal");
+  const resetEl = document.getElementById("synonym-reset");
+  const feedbackEl = document.getElementById("synonym-feedback");
+  const cardEl = wordEl?.closest(".quick-card") || document.querySelector("#dagens-synonym .quick-card");
+
+  if (!wordEl || !slotsEl || !buttonEl || !revealEl || !resetEl || !feedbackEl) {
+    return;
+  }
+
+  if (!dailySynonymWords.length) {
+    wordEl.textContent = "Ikke tilgjengelig i dag.";
+    slotsEl.setAttribute("aria-disabled", "true");
+    slotsEl.classList.add("is-locked");
+    buttonEl.style.display = "none";
+    revealEl.style.display = "none";
+    resetEl.style.display = "none";
+    return;
+  }
+
+  const today = new Date();
+  const todayKey = getTodayKey(today);
+  const dailyWord = getDailyWord(today, dailySynonymWords);
+  const synonyms = Array.isArray(dailyWord.synonyms) ? dailyWord.synonyms : [];
+  const normalizedSynonyms = synonyms.map((item) => normalizeGuess(item)).filter(Boolean);
+  const maxLength = normalizedSynonyms.length
+    ? Math.max(...normalizedSynonyms.map((item) => item.length))
+    : dailyWord.word
+        ? normalizeGuess(dailyWord.word).length
+        : 0;
+
+  wordEl.textContent = dailyWord.word;
+
+  const guessLetters = Array.from({ length: maxLength }, () => "");
+  let isLocked = false;
+  const validLetter = /[a-zA-ZæøåÆØÅ]/;
+
+  if (inputEl) {
+    inputEl.setAttribute("maxlength", String(maxLength));
+  }
+
+  const sanitizeInput = (value) => {
+    return Array.from(value || "")
+      .filter((char) => validLetter.test(char))
+      .join("")
+      .toLowerCase();
+  };
+
+  const syncInputValue = () => {
+    if (!inputEl) {
+      return;
+    }
+    const value = guessLetters.join("");
+    if (inputEl.value !== value) {
+      inputEl.value = value;
+    }
+    if (document.activeElement === inputEl) {
+      const end = inputEl.value.length;
+      try {
+        inputEl.setSelectionRange(end, end);
+      } catch (error) {
+        return;
+      }
+    }
+  };
+
+  const renderSlots = () => {
+    slotsEl.innerHTML = "";
+    let activeSet = false;
+    guessLetters.forEach((letter) => {
+      const slot = document.createElement("span");
+      slot.className = "quick-slot";
+      slot.textContent = letter ? letter : "";
+      if (!letter && !isLocked && !activeSet) {
+        slot.classList.add("is-active");
+        activeSet = true;
+      }
+      slotsEl.appendChild(slot);
+    });
+    syncInputValue();
+  };
+
+  const buildSynonymDetail = () => {
+    const detail = document.createElement("div");
+    detail.className = "quick-detail";
+
+    const wordTitle = document.createElement("div");
+    wordTitle.className = "quick-detail-word";
+    wordTitle.textContent = dailyWord.word;
+    detail.appendChild(wordTitle);
+
+    const meaningTitle = document.createElement("div");
+    meaningTitle.className = "quick-detail-heading";
+    meaningTitle.textContent = "Betydning";
+    detail.appendChild(meaningTitle);
+
+    const meaning = document.createElement("p");
+    meaning.className = "quick-detail-body";
+    meaning.textContent = dailyWord.desc || "Ingen forklaring lagt inn ennå.";
+    detail.appendChild(meaning);
+
+    if (dailyWord.examples && dailyWord.examples.length) {
+      const exampleTitle = document.createElement("div");
+      exampleTitle.className = "quick-detail-heading";
+      exampleTitle.textContent = "Eksempel";
+      detail.appendChild(exampleTitle);
+
+      const example = document.createElement("p");
+      example.className = "quick-detail-example";
+      const exampleText = document.createElement("em");
+      exampleText.textContent = dailyWord.examples[0];
+      example.appendChild(exampleText);
+      detail.appendChild(example);
+    }
+
+    if (synonyms.length) {
+      const synonymTitle = document.createElement("div");
+      synonymTitle.className = "quick-detail-heading";
+      synonymTitle.textContent = "Synonymer";
+      detail.appendChild(synonymTitle);
+
+      const synonymsWrap = document.createElement("div");
+      synonymsWrap.className = "daily-tags";
+      synonyms.forEach((item) => {
+        const tag = document.createElement("span");
+        tag.className = "daily-tag";
+        tag.textContent = item;
+        synonymsWrap.appendChild(tag);
+      });
+      detail.appendChild(synonymsWrap);
+    }
+
+    if (dailyWord.type) {
+      const meta = document.createElement("button");
+      meta.type = "button";
+      meta.className = "quick-detail-meta quick-detail-meta-button";
+      meta.textContent = "Ordklasse: " + dailyWord.type;
+      meta.dataset.wordClass = dailyWord.type;
+      meta.addEventListener("click", () => openWordClassModal(dailyWord.type));
+      detail.appendChild(meta);
+    }
+
+    return detail;
+  };
+
+  const setFeedback = (state, message, detailNode) => {
+    feedbackEl.dataset.state = state;
+    feedbackEl.innerHTML = "";
+
+    const messageEl = document.createElement("p");
+    messageEl.className = "quick-message";
+    messageEl.textContent = message;
+    feedbackEl.appendChild(messageEl);
+
+    if (detailNode) {
+      feedbackEl.appendChild(detailNode);
+    }
+  };
+
+  const lockInput = () => {
+    isLocked = true;
+    slotsEl.classList.add("is-locked");
+    slotsEl.setAttribute("aria-disabled", "true");
+    slotsEl.setAttribute("tabindex", "-1");
+    if (inputEl) {
+      inputEl.setAttribute("disabled", "true");
+    }
+    buttonEl.style.display = "none";
+    revealEl.style.display = "none";
+  };
+
+  const unlockInput = () => {
+    isLocked = false;
+    slotsEl.classList.remove("is-locked");
+    slotsEl.removeAttribute("aria-disabled");
+    slotsEl.setAttribute("tabindex", "0");
+    if (inputEl) {
+      inputEl.removeAttribute("disabled");
+    }
+    buttonEl.style.display = "";
+    revealEl.style.display = "";
+  };
+
+  const setSolvedState = (status, solvedWord) => {
+    const detail = buildSynonymDetail();
+    const revealWord =
+      status === "solved"
+        ? solvedWord || synonyms[0]
+        : synonyms[0] || solvedWord;
+    if (revealWord) {
+      const revealLetters = Array.from(normalizeGuess(revealWord));
+      for (let i = 0; i < guessLetters.length; i += 1) {
+        guessLetters[i] = revealLetters[i] || "";
+      }
+      renderSlots();
+    }
+    if (status === "solved") {
+      setFeedback("success", "Riktig! Ett synonym til " + dailyWord.word + " er \"" + revealWord + "\".", detail);
+    } else {
+      const labelWord = revealWord || "et synonym";
+      setFeedback("warn", "Et synonym til " + dailyWord.word + " er \"" + labelWord + "\".", detail);
+    }
+    if (cardEl) {
+      cardEl.classList.remove("is-solved", "is-revealed");
+      cardEl.classList.add(status === "solved" ? "is-solved" : "is-revealed");
+    }
+    lockInput();
+  };
+
+  const resetGuess = () => {
+    storeDailySynonymState(todayKey, "");
+    for (let i = 0; i < guessLetters.length; i += 1) {
+      guessLetters[i] = "";
+    }
+    if (cardEl) {
+      cardEl.classList.remove("is-solved", "is-revealed");
+    }
+    unlockInput();
+    setFeedback("warn", "Dagens synonym er resatt.");
+    renderSlots();
+    slotsEl.focus();
+  };
+
+  const checkGuess = () => {
+    const guess = normalizeGuess(guessLetters.join(""));
+    if (!guess) {
+      setFeedback("warn", "Skriv inn et synonym fÃ¸rst.");
+      return;
+    }
+    if (normalizedSynonyms.includes(guess)) {
+      storeDailySynonymState(todayKey, "solved");
+      setSolvedState("solved", guess);
+    } else {
+      setFeedback("error", "Ikke helt. Prøv et annet synonym.");
+    }
+  };
+
+  const handleKey = (event) => {
+    if (isLocked) {
+      return;
+    }
+
+    if (event.key === "Backspace") {
+      for (let i = guessLetters.length - 1; i >= 0; i -= 1) {
+        if (guessLetters[i]) {
+          guessLetters[i] = "";
+          break;
+        }
+      }
+      renderSlots();
+      event.preventDefault();
+      return;
+    }
+
+    if (event.key === "Enter") {
+      checkGuess();
+      return;
+    }
+
+    if (event.key.length === 1 && validLetter.test(event.key)) {
+      const nextIndex = guessLetters.indexOf("");
+      if (nextIndex !== -1) {
+        guessLetters[nextIndex] = event.key.toLowerCase();
+        renderSlots();
+      }
+      event.preventDefault();
+    }
+  };
+
+  const handleInput = () => {
+    if (!inputEl || isLocked) {
+      return;
+    }
+    const cleaned = sanitizeInput(inputEl.value).slice(0, guessLetters.length);
+    const nextLetters = Array.from(cleaned);
+    for (let i = 0; i < guessLetters.length; i += 1) {
+      guessLetters[i] = nextLetters[i] || "";
+    }
+    renderSlots();
+    if (normalizedSynonyms.includes(cleaned)) {
+      checkGuess();
+    }
+  };
+
+  const focusInput = () => {
+    if (inputEl && !isLocked) {
+      inputEl.focus({ preventScroll: true });
+      return;
+    }
+    slotsEl.focus();
+  };
+
+  buttonEl.addEventListener("click", checkGuess);
+  slotsEl.addEventListener("keydown", handleKey);
+  slotsEl.addEventListener("click", focusInput);
+  resetEl.addEventListener("click", resetGuess);
+  if (inputEl) {
+    inputEl.addEventListener("input", handleInput);
+    inputEl.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        checkGuess();
+      }
+    });
+  }
+
+  revealEl.addEventListener("click", () => {
+    storeDailySynonymState(todayKey, "revealed");
+    setSolvedState("revealed");
+  });
+
+  const storedState = loadDailySynonymState(todayKey);
+  if (storedState) {
+    setSolvedState(storedState.status);
+  }
+
+  renderSlots();
+}
+
 window.VokabulWords = {
   ...exported,
   getDailyWord,
   loadDailyWord,
-  loadQuickGuess
+  loadQuickGuess,
+  loadDailySynonymGame
 };
 
 loadDailyWord();
 loadQuickGuess();
+loadDailySynonymGame();

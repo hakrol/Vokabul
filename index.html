@@ -10,6 +10,21 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <nav class="site-nav">
+    <a class="brand" href="index.html" aria-label="Hjem">
+      <span class="brand-icon" aria-hidden="true">V</span>
+      <span class="brand-name">Vokab</span>
+    </a>
+    <div class="nav-links" aria-label="Spillmeny">
+      <a class="nav-home is-active" href="index.html" aria-current="page">Hjem</a>
+      <a href="games/synonymspill/index.html">Synonymspill</a>
+      <a href="games/ordgjettespill/index.html">Ordgjettespill</a>
+      <a href="games/kontinuum/index.html">Kontinuum</a>
+      <a href="games/vokabularspill/index.html">Vokabularspill</a>
+      <a href="games/setningsvalg/index.html">Setningsvalg</a>
+      <a href="admin.html">Admin</a>
+    </div>
+  </nav>
   <main class="landing">
     <header class="hero">
       <div class="hero-copy">
@@ -75,8 +90,36 @@
       </div>
     </section>
 
+    <section class="quick-guess" id="dagens-synonym">
+      <div class="quick-card">
+        <div class="quick-title">Dagens synonym</div>
+        <p class="quick-text">
+          Finn ett synonym til ordet under. Ett riktig svar er nok.
+        </p>
+        <div class="quick-clue" id="synonym-word">Laster ord...</div>
+        <div class="quick-form">
+          <div class="quick-slots" id="synonym-slots" role="textbox" tabindex="0" aria-label="Skriv synonymet"></div>
+          <input
+            class="quick-input"
+            id="synonym-input"
+            type="text"
+            inputmode="text"
+            autocomplete="off"
+            autocorrect="off"
+            autocapitalize="none"
+            spellcheck="false"
+            tabindex="-1"
+            aria-label="Skriv synonymet"
+          />
+          <button class="btn secondary" id="synonym-check" type="button">Sjekk</button>
+          <button class="btn ghost" id="synonym-reveal" type="button">Avsl&oslash;r</button>
+          <button class="btn admin" id="synonym-reset" type="button">Reset</button>
+        </div>
+        <div class="quick-feedback" id="synonym-feedback"></div>
+      </div>
+    </section>
+
     <section class="games" id="spill">
-      <div class="section-title">Velg et spill</div>
       <div class="grid">
         <a class="card card-synonym" href="games/synonymspill/index.html">
           <div class="card-title">Synonymspill</div>

@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="no">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Adminpanel - Vokab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="admin-page">
+  <nav class="site-nav">
+    <a class="brand" href="index.html" aria-label="Hjem">
+      <span class="brand-icon" aria-hidden="true">V</span>
+      <span class="brand-name">Vokab</span>
+    </a>
+    <div class="nav-links" aria-label="Spillmeny">
+      <a href="index.html">Hjem</a>
+      <a href="games/synonymspill/index.html">Synonymspill</a>
+      <a href="games/ordgjettespill/index.html">Ordgjettespill</a>
+      <a href="games/kontinuum/index.html">Kontinuum</a>
+      <a href="games/vokabularspill/index.html">Vokabularspill</a>
+      <a href="games/setningsvalg/index.html">Setningsvalg</a>
+      <a class="nav-home is-active" href="admin.html" aria-current="page">Admin</a>
+    </div>
+  </nav>
+
+  <main class="admin-layout">
+    <aside class="admin-sidebar">
+      <div class="admin-sidebar-title">Adminpanel</div>
+      <p class="admin-sidebar-subtitle">
+        Legg til, endre og ta bort ord i dagens oppgaver.
+      </p>
+      <div class="admin-nav" role="tablist" aria-label="Velg oppgave">
+        <button class="admin-nav-item is-active" type="button" data-section="dailyWords" role="tab">Dagens ord</button>
+        <button class="admin-nav-item" type="button" data-section="quickGuess" role="tab">Dagens gjett</button>
+        <button class="admin-nav-item" type="button" data-section="dailySynonyms" role="tab">Dagens synonym</button>
+        <button class="admin-nav-item" type="button" data-section="allWords" role="tab">Alle ord</button>
+      </div>
+    </aside>
+
+    <section class="admin-content">
+      <header class="admin-header">
+        <div>
+          <div class="admin-kicker">Admin</div>
+          <h1 id="admin-title">Dagens ord</h1>
+          <p class="admin-description" id="admin-description"></p>
+        </div>
+        <div class="admin-header-actions">
+          <button class="btn ghost" type="button" id="admin-clear">Bruk standardliste</button>
+        </div>
+      </header>
+
+      <div class="admin-note" id="admin-note">
+        Egendefinerte lister lagres lokalt i nettleseren din.
+      </div>
+
+      <div id="admin-editor">
+      <form class="admin-form" id="admin-form">
+        <div class="admin-form-grid">
+          <div class="admin-field">
+            <label for="admin-word">Ord *</label>
+            <input id="admin-word" name="word" type="text" autocomplete="off" required />
+            <span>Ordet som skal brukes i dagens oppgave.</span>
+          </div>
+          <div class="admin-field">
+            <label for="admin-type">Ordklasse</label>
+            <input id="admin-type" name="type" type="text" autocomplete="off" />
+            <span>Eksempel: substantiv, adjektiv, verb.</span>
+          </div>
+          <div class="admin-field">
+            <label for="admin-desc">Beskrivelse *</label>
+            <textarea id="admin-desc" name="desc"></textarea>
+            <span>Brukes som forklaring i Dagens ord og ledetråd i Dagens gjett.</span>
+          </div>
+          <div class="admin-field">
+            <label for="admin-meaning">Betydning</label>
+            <textarea id="admin-meaning" name="meaning"></textarea>
+            <span>Valgfri, vises i detaljvisninger og modaler.</span>
+          </div>
+          <div class="admin-field">
+            <label for="admin-usage">Bruk</label>
+            <textarea id="admin-usage" name="usage"></textarea>
+            <span>Valgfri nyansering av bruk.</span>
+          </div>
+          <div class="admin-field">
+            <label for="admin-examples">Eksempler</label>
+            <textarea id="admin-examples" name="examples"></textarea>
+            <span>Én setning per linje.</span>
+          </div>
+          <div class="admin-field">
+            <label for="admin-synonyms">Synonymer</label>
+            <textarea id="admin-synonyms" name="synonyms"></textarea>
+            <span>Komma-separert. Kreves for Dagens synonym.</span>
+          </div>
+          <div class="admin-field">
+            <label for="admin-see">Se også</label>
+            <input id="admin-see" name="see" type="text" autocomplete="off" />
+            <span>Knytter ordet til et annet begrep i ordbanken.</span>
+          </div>
+        </div>
+
+        <div class="admin-form-actions">
+          <button class="btn primary" type="submit" id="admin-save">Lagre ord</button>
+          <button class="btn secondary" type="button" id="admin-cancel">Avbryt</button>
+          <span class="admin-form-state" id="admin-state"></span>
+        </div>
+      </form>
+
+      <div class="admin-list-header">
+        <h2>Ord i listen</h2>
+        <span class="admin-count" id="admin-count"></span>
+      </div>
+
+      <div class="admin-list" id="admin-list"></div>
+      </div>
+
+      <div class="admin-allwords" id="admin-allwords" hidden>
+        <div class="admin-toolbar">
+          <label class="admin-search">
+            <span>SÃ¸k</span>
+            <input type="search" id="admin-search" placeholder="Skriv inn ord eller betydning" />
+          </label>
+          <div class="admin-filters" role="tablist" aria-label="Filtrer ord">
+            <button class="admin-filter is-active" type="button" data-filter="all">Alle</button>
+            <button class="admin-filter" type="button" data-filter="dailyWords">Dagens ord</button>
+            <button class="admin-filter" type="button" data-filter="quickGuess">Dagens gjett</button>
+            <button class="admin-filter" type="button" data-filter="dailySynonyms">Dagens synonym</button>
+          </div>
+        </div>
+        <div class="admin-list-header">
+          <h2>Komplett ordliste</h2>
+          <span class="admin-count" id="admin-allwords-count"></span>
+        </div>
+        <div class="admin-list" id="admin-allwords-list"></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="./js/storage/storage.js"></script>
+  <script src="./js/words/nouns.js"></script>
+  <script src="./js/words/adjectives.js"></script>
+  <script src="./js/words/verbs.js"></script>
+  <script src="./js/admin/admin.js"></script>
+</body>
+</html>

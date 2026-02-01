@@ -46,6 +46,12 @@ Bruk disse variablene som grunnlag:
 - Mobil: enkel kolonne, tett men luftig padding.
 
 ## Komponenter
+### Meny (site-nav)
+- Pilleformet toppmeny med glass-aktig hvit bakgrunn og myk skygge.
+- Venstre: merkevare med rund ikonpille + "Vokab" i uppercase.
+- Høyre: lenker i piller, med tydelig "Hjem"-knapp i teal.
+- Mobil: menyen bryter i to rader ved 860px og blir horisontal scroll under 600px.
+
 ### Knapp
 - Runde piller (border-radius: 999px).
 - Tydelig skygge og lett hover-lift.

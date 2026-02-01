@@ -1,93 +1,635 @@
-window.VokabulWordsData = window.VokabulWordsData || {};
+﻿window.VokabulWordsData = window.VokabulWordsData || {};
 window.VokabulWordsData.nouns = [
   {
     word: "obskurantisme",
     desc: "Bevisst uklar tale eller praksis som gj\u00f8r innsikt vanskelig.",
+    meaning: "Bevisst uklar tale eller praksis som gj\u00f8r innsikt vanskelig.",
+    usage: "Brukes om tekster eller handlinger som gj\u00f8r det vanskelig \u00e5 forst\u00e5 noe.",
     type: "substantiv",
     examples: [
       "Teksten var full av obskurantisme som skjulte hovedpoenget.",
       "Debatten druknet i obskurantisme og uklare begreper."
     ],
-    synonyms: ["mystifisering", "fordunkling", "tilsl\u00f8ring"]
+    synonyms: ["mystifisering", "fordunkling", "tilsl\u00f8ring"],
+    useInDaily: true,
+    useInQuickGuess: true,
+    useInDailySynonym: true
   },
   {
     word: "apori",
     desc: "En tilstand av r\u00e5dvillhet eller ul\u00f8selig tvil.",
+    meaning: "En tilstand av r\u00e5dvillhet eller ul\u00f8selig tvil.",
+    usage: "Brukes n\u00e5r man ikke ser en klar vei videre.",
     type: "substantiv",
     examples: [
       "Han stod i apori og visste ikke hvilken vei han skulle velge.",
       "Essayet ender i apori uten en klar konklusjon."
     ],
-    synonyms: ["r\u00e5dvillhet", "tvil", "uf\u00f8re"]
+    synonyms: ["r\u00e5dvillhet", "tvil", "uf\u00f8re"],
+    useInDaily: true,
+    useInQuickGuess: true,
+    useInDailySynonym: true
   },
   {
     word: "melankoli",
     desc: "Vedvarende, stillferdig tungsinn uten tydelig \u00e5rsak.",
+    meaning: "Vedvarende, stillferdig tungsinn uten tydelig \u00e5rsak.",
+    usage: "Brukes om en stille, dyp tristhet.",
     type: "substantiv",
     examples: [
       "En mild melankoli l\u00e5 over kvelden.",
       "Musikken fylte rommet med melankoli."
     ],
-    synonyms: ["tungsinn", "vemod", "sorgmod"]
+    synonyms: ["tungsinn", "vemod", "sorgmod"],
+    useInDaily: true,
+    useInQuickGuess: true,
+    useInDailySynonym: true
   },
   {
     word: "retorisk ferniss",
     desc: "Overflatisk spr\u00e5k som skjuler manglende substans.",
+    meaning: "Overflatisk spr\u00e5k som skjuler manglende substans.",
+    usage: "Brukes om ordbruk som pynter mer enn det forklarer.",
     type: "substantivisk uttrykk",
     examples: [
       "Presentasjonen hadde et tykt lag av retorisk ferniss.",
       "Bak det retoriske fernisset var det lite innhold."
     ],
-    synonyms: ["staffasje", "prydspr\u00e5k", "glansbilde"]
+    synonyms: ["staffasje", "prydspr\u00e5k", "glansbilde"],
+    useInDaily: true,
+    useInQuickGuess: true,
+    useInDailySynonym: true
   },
   {
     word: "tvetydighet",
     desc: "N\u00e5r noe kan forst\u00e5s p\u00e5 flere, ofte motstridende, m\u00e5ter.",
+    meaning: "N\u00e5r noe kan forst\u00e5s p\u00e5 flere, ofte motstridende, m\u00e5ter.",
+    usage: "Brukes om utsagn eller situasjoner som kan tolkes ulikt.",
     type: "substantiv",
     examples: [
       "Tvetydighet i kontrakten skapte problemer.",
       "Han smilte med en tvetydighet som var vanskelig \u00e5 lese."
     ],
-    synonyms: ["flertydighet", "uklarhet", "dobbeltbetydning"]
+    synonyms: ["flertydighet", "uklarhet", "dobbeltbetydning"],
+    useInDaily: true,
+    useInQuickGuess: true,
+    useInDailySynonym: true
   },
   {
     word: "forstillelse",
     desc: "Bevisst skjuling av egne f\u00f8lelser eller hensikter.",
+    meaning: "Bevisst skjuling av egne f\u00f8lelser eller hensikter.",
+    usage: "Brukes n\u00e5r noen skjuler hva de egentlig mener.",
     type: "substantiv",
     examples: [
       "Hun m\u00f8tte ham med forstillelse og falsk varme.",
       "Forstillelse kan gj\u00f8re det vanskelig \u00e5 stole p\u00e5 andre."
     ],
-    synonyms: ["maskering", "skinn", "hykleri"]
+    synonyms: ["maskering", "skinn", "hykleri"],
+    useInDaily: true,
+    useInQuickGuess: true,
+    useInDailySynonym: true
   },
   {
     word: "tids\u00e5nd",
     desc: "De r\u00e5dende ideene, holdningene og verdiene i en epoke.",
+    meaning: "De r\u00e5dende ideene, holdningene og verdiene i en epoke.",
+    usage: "Brukes om kulturelle og sosiale str\u00f8mninger i en tidsperiode.",
     type: "substantiv",
     examples: [
       "Stilen speiler tids\u00e5nden fra 80-tallet.",
       "Kunstneren fanget tids\u00e5nden med skarpe observasjoner."
     ],
-    synonyms: ["\u00e5ndsklima", "tidsklima", "epokekarakter"]
+    synonyms: ["\u00e5ndsklima", "tidsklima", "epokekarakter"],
+    useInDaily: true,
+    useInQuickGuess: true,
+    useInDailySynonym: true
   },
   {
     word: "desillusjon",
     desc: "Tap av illusjoner; \u00e5 bli fratatt en idealisert forestilling.",
+    meaning: "Tap av illusjoner; \u00e5 bli fratatt en idealisert forestilling.",
+    usage: "Brukes n\u00e5r forventninger brister og virkeligheten treffer.",
     type: "substantiv",
     examples: [
       "Hun kjente desillusjon etter det som skjedde.",
       "Desillusjonen kom da l\u00f8ftene viste seg tomme."
     ],
-    synonyms: ["skuffelse", "avfortryllelse", "oppv\u00e5kning"]
+    synonyms: ["skuffelse", "avfortryllelse", "oppv\u00e5kning"],
+    useInDaily: true,
+    useInQuickGuess: true,
+    useInDailySynonym: true
   },
   {
     word: "etterp\u00e5klokskap",
     desc: "Innsikt som f\u00f8rst kommer etter at noe har skjedd.",
+    meaning: "Innsikt som f\u00f8rst kommer etter at noe har skjedd.",
+    usage: "Brukes om l\u00e6rdom som kommer for sent.",
     type: "substantiv",
     examples: [
       "Etterp\u00e5klokskap hjelper lite n\u00e5r valget allerede er gjort.",
       "Vi la bort etterp\u00e5klokskap og l\u00e6rte av feilen."
     ],
-    synonyms: ["ettertanke", "etterklokskap", "fasitvisdom"]
+    synonyms: ["ettertanke", "etterklokskap", "fasitvisdom"],
+    useInDaily: true,
+    useInQuickGuess: true,
+    useInDailySynonym: true
+  },
+  {
+    word: "mystifisering",
+    desc: "\u00c5 gj\u00f8re noe uklart eller hemmelighetsfullt.",
+    meaning: "\u00c5 gj\u00f8re noe uklart eller hemmelighetsfullt.",
+    usage: "Brukes n\u00e5r spr\u00e5k eller handlinger skaper forvirring.",
+    type: "substantiv",
+    examples: ["Forklaringen endte i mystifisering."],
+    useInDaily: true,
+    useInQuickGuess: true,
+    useInDailySynonym: true
+  },
+  {
+    word: "fordunkling",
+    desc: "\u00c5 gj\u00f8re noe m\u00f8rkere eller mindre klart.",
+    meaning: "\u00c5 gj\u00f8re noe m\u00f8rkere eller mindre klart.",
+    usage: "Brukes om \u00e5 tilsl\u00f8re fakta eller mening.",
+    type: "substantiv",
+    examples: ["Debatten bar preg av fordunkling."],
+    useInDaily: true,
+    useInQuickGuess: true,
+    useInDailySynonym: true
+  },
+  {
+    word: "tilsl\u00f8ring",
+    desc: "Det \u00e5 skjule eller dekke over.",
+    meaning: "Det \u00e5 skjule eller dekke over.",
+    usage: "Brukes om \u00e5 legge lokk p\u00e5 sannheten.",
+    type: "substantiv",
+    examples: ["Rapporten var full av tilsl\u00f8ring."],
+    useInDaily: true,
+    useInQuickGuess: true,
+    useInDailySynonym: true
+  },
+  {
+    word: "r\u00e5dvillhet",
+    desc: "Mangel p\u00e5 r\u00e5d; usikkerhet.",
+    meaning: "Mangel p\u00e5 r\u00e5d; usikkerhet.",
+    usage: "Brukes n\u00e5r man ikke vet hva man skal gj\u00f8re.",
+    type: "substantiv",
+    examples: ["Hun stod i r\u00e5dvillhet."],
+    useInDaily: true,
+    useInQuickGuess: true,
+    useInDailySynonym: true
+  },
+  {
+    word: "tvil",
+    desc: "Usikkerhet om noe er sant eller riktig.",
+    meaning: "Usikkerhet om noe er sant eller riktig.",
+    usage: "Brukes om \u00e5 v\u00e6re i tvil.",
+    type: "substantiv",
+    examples: ["Han kjente tvil f\u00f8r beslutningen."],
+    useInDaily: true,
+    useInQuickGuess: true,
+    useInDailySynonym: true
+  },
+  {
+    word: "uf\u00f8re",
+    desc: "Fastl\u00e5st situasjon uten god l\u00f8sning.",
+    meaning: "Fastl\u00e5st situasjon uten god l\u00f8sning.",
+    usage: "Brukes om problemer der alle valg er d\u00e5rlige.",
+    type: "substantiv",
+    examples: ["Forhandlingene havnet i et uf\u00f8re."],
+    useInDaily: true,
+    useInQuickGuess: true,
+    useInDailySynonym: true
+  },
+  {
+    word: "tungsinn",
+    desc: "Vedvarende tristhet.",
+    meaning: "Vedvarende tristhet.",
+    usage: "Brukes om stille, tung stemning.",
+    type: "substantiv",
+    examples: ["Tungsinn la seg over rommet."],
+    useInDaily: true,
+    useInQuickGuess: true,
+    useInDailySynonym: true
+  },
+  {
+    word: "vemod",
+    desc: "Mildt, stillferdig sorgpreg.",
+    meaning: "Mildt, stillferdig sorgpreg.",
+    usage: "Brukes om bitters\u00f8t tristhet.",
+    type: "substantiv",
+    examples: ["Det var et snev av vemod i avskjeden."],
+    useInDaily: true,
+    useInQuickGuess: true,
+    useInDailySynonym: true
+  },
+  {
+    word: "sorgmod",
+    desc: "Tristhet med ettertenksomhet.",
+    meaning: "Tristhet med ettertenksomhet.",
+    usage: "Brukes om rolig, dyp sorg.",
+    type: "substantiv",
+    examples: ["Hun bar et sorgmod i blikket."],
+    useInDaily: true,
+    useInQuickGuess: true,
+    useInDailySynonym: true
+  },
+  {
+    word: "staffasje",
+    desc: "Ytre pynt eller dekor som skjuler innhold.",
+    meaning: "Ytre pynt eller dekor som skjuler innhold.",
+    usage: "Brukes om overflatepynt uten substans.",
+    type: "substantiv",
+    examples: ["Tallene var staffasje for en tom plan."],
+    useInDaily: true,
+    useInQuickGuess: true,
+    useInDailySynonym: true
+  },
+  {
+    word: "prydspr\u00e5k",
+    desc: "Pyntet og blomstrende spr\u00e5k.",
+    meaning: "Pyntet og blomstrende spr\u00e5k.",
+    usage: "Brukes n\u00e5r ord pyntes mer enn innholdet t\u00e5ler.",
+    type: "substantiv",
+    examples: ["Talen var full av prydspr\u00e5k."],
+    useInDaily: true,
+    useInQuickGuess: true,
+    useInDailySynonym: true
+  },
+  {
+    word: "glansbilde",
+    desc: "Et idealisert og polert bilde.",
+    meaning: "Et idealisert og polert bilde.",
+    usage: "Brukes om noe som fremstilles for positivt.",
+    type: "substantiv",
+    examples: ["Historien ble et glansbilde av virkeligheten."],
+    useInDaily: true,
+    useInQuickGuess: true,
+    useInDailySynonym: true
+  },
+  {
+    word: "flertydighet",
+    desc: "At noe kan forst\u00e5s p\u00e5 flere m\u00e5ter.",
+    meaning: "At noe kan forst\u00e5s p\u00e5 flere m\u00e5ter.",
+    usage: "Brukes om ord eller utsagn med flere tolkninger.",
+    type: "substantiv",
+    examples: ["Flertydigheten skapte uenighet."],
+    useInDaily: true,
+    useInQuickGuess: true,
+    useInDailySynonym: true
+  },
+  {
+    word: "uklarhet",
+    desc: "Mangel p\u00e5 klarhet.",
+    meaning: "Mangel p\u00e5 klarhet.",
+    usage: "Brukes n\u00e5r noe er utydelig.",
+    type: "substantiv",
+    examples: ["Uklarhet i avtalen ga problemer."],
+    useInDaily: true,
+    useInQuickGuess: true,
+    useInDailySynonym: true
+  },
+  {
+    word: "dobbeltbetydning",
+    desc: "To mulige betydninger i samme uttrykk.",
+    meaning: "To mulige betydninger i samme uttrykk.",
+    usage: "Brukes i ordspill eller tvetydige utsagn.",
+    type: "substantiv",
+    examples: ["Han la inn en bevisst dobbeltbetydning."],
+    useInDaily: true,
+    useInQuickGuess: true,
+    useInDailySynonym: true
+  },
+  {
+    word: "maskering",
+    desc: "Det \u00e5 skjule eller kamuflere.",
+    meaning: "Det \u00e5 skjule eller kamuflere.",
+    usage: "Brukes om \u00e5 dekke over f\u00f8lelser eller intensjoner.",
+    type: "substantiv",
+    examples: ["Et smil kan v\u00e6re en maskering."],
+    useInDaily: true,
+    useInQuickGuess: true,
+    useInDailySynonym: true
+  },
+  {
+    word: "skinn",
+    desc: "Et ytre inntrykk som ikke stemmer.",
+    meaning: "Et ytre inntrykk som ikke stemmer.",
+    usage: "Brukes om falsk fasade.",
+    type: "substantiv",
+    examples: ["Bak skinnet var han usikker."],
+    useInDaily: true,
+    useInQuickGuess: true,
+    useInDailySynonym: true
+  },
+  {
+    word: "hykleri",
+    desc: "\u00c5 si \u00e9n ting og gj\u00f8re en annen.",
+    meaning: "\u00c5 si \u00e9n ting og gj\u00f8re en annen.",
+    usage: "Brukes om falsk moralsk holdning.",
+    type: "substantiv",
+    examples: ["Han ble tatt i hykleri."],
+    useInDaily: true,
+    useInQuickGuess: true,
+    useInDailySynonym: true
+  },
+  {
+    word: "\u00e5ndsklima",
+    desc: "Ideene og holdningene som preger en tid.",
+    meaning: "Ideene og holdningene som preger en tid.",
+    usage: "Brukes om den kulturelle stemningen i en epoke.",
+    type: "substantiv",
+    examples: ["Boken fanger \u00e5ndsklimaet i mellomkrigstiden."],
+    useInDaily: true,
+    useInQuickGuess: true,
+    useInDailySynonym: true
+  },
+  {
+    word: "tidsklima",
+    desc: "Samfunnets generelle holdninger i en periode.",
+    meaning: "Samfunnets generelle holdninger i en periode.",
+    usage: "Brukes om stemninger og str\u00f8mninger i tiden.",
+    type: "substantiv",
+    examples: ["Tidsklimaet var preget av optimisme."],
+    useInDaily: true,
+    useInQuickGuess: true,
+    useInDailySynonym: true
+  },
+  {
+    word: "epokekarakter",
+    desc: "Det som kjennetegner en epoke.",
+    meaning: "Det som kjennetegner en epoke.",
+    usage: "Brukes om s\u00e6rtrekk ved en tidsperiode.",
+    type: "substantiv",
+    examples: ["Arkitekturen har tydelig epokekarakter."],
+    useInDaily: true,
+    useInQuickGuess: true,
+    useInDailySynonym: true
+  },
+  {
+    word: "skuffelse",
+    desc: "F\u00f8lelse av \u00e5 bli skuffet.",
+    meaning: "F\u00f8lelse av \u00e5 bli skuffet.",
+    usage: "Brukes n\u00e5r forventninger ikke innfris.",
+    type: "substantiv",
+    examples: ["Skuffelsen var stor."],
+    useInDaily: true,
+    useInQuickGuess: true,
+    useInDailySynonym: true
+  },
+  {
+    word: "avfortryllelse",
+    desc: "Tap av magi eller idealisering.",
+    meaning: "Tap av magi eller idealisering.",
+    usage: "Brukes om \u00e5 se noe mer n\u00f8kternt.",
+    type: "substantiv",
+    examples: ["Avfortryllelsen kom etterp\u00e5."],
+    useInDaily: true,
+    useInQuickGuess: true,
+    useInDailySynonym: true
+  },
+  {
+    word: "oppv\u00e5kning",
+    desc: "Plutselig innsikt eller erkjennelse.",
+    meaning: "Plutselig innsikt eller erkjennelse.",
+    usage: "Brukes om \u00e5 se ting klarere.",
+    type: "substantiv",
+    examples: ["Det ble en br\u00e5 oppv\u00e5kning."],
+    useInDaily: true,
+    useInQuickGuess: true,
+    useInDailySynonym: true
+  },
+  {
+    word: "ettertanke",
+    desc: "Refleksjon i etterkant.",
+    meaning: "Refleksjon i etterkant.",
+    usage: "Brukes n\u00e5r man tenker tilbake p\u00e5 noe.",
+    type: "substantiv",
+    examples: ["Med ettertanke inns\u00e5 han feilen."],
+    useInDaily: true,
+    useInQuickGuess: true,
+    useInDailySynonym: true
+  },
+  {
+    word: "etterklokskap",
+    desc: "Klokskap som kommer for sent.",
+    meaning: "Klokskap som kommer for sent.",
+    usage: "Brukes n\u00e5r man forst\u00e5r etterp\u00e5.",
+    type: "substantiv",
+    examples: ["Etterklokskap endrer lite."],
+    useInDaily: true,
+    useInQuickGuess: true,
+    useInDailySynonym: true
+  },
+  {
+    word: "fasitvisdom",
+    desc: "\u00c5 tro man vet fasiten i ettertid.",
+    meaning: "\u00c5 tro man vet fasiten i ettertid.",
+    usage: "Brukes om skr\u00e5sikker etterp\u00e5klokskap.",
+    type: "substantiv",
+    examples: ["Fasitvisdom er lett n\u00e5r alt er over."],
+    useInDaily: true,
+    useInQuickGuess: true,
+    useInDailySynonym: true
+  },
+  {
+    word: "minne",
+    desc: "Et inntrykk eller en erfaring som blir liggende igjen i bevisstheten.",
+    meaning: "Et inntrykk eller en erfaring som blir liggende igjen i bevisstheten.",
+    usage: "Brukes om noe man husker fra opplevelser, personer eller steder.",
+    type: "substantiv",
+    examples: ["Hun hadde et klart minne fra sommerferien."],
+    useInDaily: true,
+    useInQuickGuess: true,
+    useInDailySynonym: true
+  },
+  {
+    word: "ekko",
+    desc: "En lyd som reflekteres tilbake og gjentas i rommet.",
+    meaning: "En lyd som reflekteres tilbake og gjentas i rommet.",
+    usage: "Brukes om gjenklang eller spor som henger igjen.",
+    type: "substantiv",
+    examples: ["Roet kom med et ekko mellom veggene."],
+    useInDaily: true,
+    useInQuickGuess: true,
+    useInDailySynonym: true
+  },
+  {
+    word: "omsorg",
+    desc: "Varm omtanke og handlinger som tar vare p\u00e5 noen.",
+    meaning: "Varm omtanke og handlinger som tar vare p\u00e5 noen.",
+    usage: "Brukes om st\u00f8tte, hjelp og ansvar for andre.",
+    type: "substantiv",
+    examples: ["Hun viste omsorg ved \u00e5 lytte og hjelpe."],
+    useInDaily: true,
+    useInQuickGuess: true,
+    useInDailySynonym: true
+  },
+  {
+    word: "trass",
+    desc: "Sta motstand mot noe, ofte drevet av vilje og stolthet.",
+    meaning: "Sta motstand mot noe, ofte drevet av vilje og stolthet.",
+    usage: "Brukes n\u00e5r man nekter \u00e5 gi seg eller f\u00f8lge r\u00e5d.",
+    type: "substantiv",
+    examples: ["Han svarte i ren trass."],
+    useInDaily: true,
+    useInQuickGuess: true,
+    useInDailySynonym: true
+  },
+  {
+    word: "regn",
+    desc: "Vanndr\u00e5per som faller fra skyer og fukter luft og jord.",
+    meaning: "Vanndr\u00e5per som faller fra skyer og fukter luft og jord.",
+    usage: "Brukes om v\u00e6r der det kommer nedb\u00f8r.",
+    type: "substantiv",
+    examples: ["Regnet trommet mot vinduet."],
+    useInDaily: true,
+    useInQuickGuess: true,
+    useInDailySynonym: true
+  },
+  {
+    word: "t\u00e5ke",
+    desc: "Sm\u00e5 vanndr\u00e5per som henger i lufta og gj\u00f8r sikten uklar.",
+    meaning: "Sm\u00e5 vanndr\u00e5per som henger i lufta og gj\u00f8r sikten uklar.",
+    usage: "Brukes om d\u00e5rlig sikt eller mental uklarhet.",
+    type: "substantiv",
+    examples: ["T\u00e5ken l\u00e5 tett over fjorden."],
+    useInDaily: true,
+    useInQuickGuess: true,
+    useInDailySynonym: true
+  },
+  {
+    word: "pause",
+    desc: "Et kort opphold som gir rom for ro og ny energi.",
+    meaning: "Et kort opphold som gir rom for ro og ny energi.",
+    usage: "Brukes om et avbrekk i arbeid, spill eller aktivitet.",
+    type: "substantiv",
+    examples: ["Vi tok en kort pause f\u00f8r vi fortsatte."],
+    useInDaily: true,
+    useInQuickGuess: true,
+    useInDailySynonym: true
+  },
+  {
+    word: "tempo",
+    desc: "Farten eller rytmen i det som skjer.",
+    meaning: "Farten eller rytmen i det som skjer.",
+    usage: "Brukes om hvor raskt noe foreg\u00e5r.",
+    type: "substantiv",
+    examples: ["Laget holdt et h\u00f8yt tempo."],
+    useInDaily: true,
+    useInQuickGuess: true,
+    useInDailySynonym: true
+  },
+  {
+    word: "bris",
+    desc: "En svak og behagelig vind.",
+    meaning: "En svak og behagelig vind.",
+    usage: "Brukes om lett vind som kjennes sval.",
+    type: "substantiv",
+    examples: ["En mild bris kom inn fra sj\u00f8en."],
+    useInDaily: true,
+    useInQuickGuess: true,
+    useInDailySynonym: true
+  },
+  {
+    word: "kluss",
+    desc: "Rot eller forvirring som gj\u00f8r noe vanskelig \u00e5 f\u00e5 til.",
+    meaning: "Rot eller forvirring som gj\u00f8r noe vanskelig \u00e5 f\u00e5 til.",
+    usage: "Brukes om noe som blir kronglete eller feil.",
+    type: "substantiv",
+    examples: ["Det ble kluss med planene."],
+    useInDaily: true,
+    useInQuickGuess: true,
+    useInDailySynonym: true
+  },
+  {
+    word: "glimtminne",
+    desc: "En liten scene som plutselig dukker opp fra barndommen.",
+    meaning: "Et kort, klart minne som plutselig blusser opp.",
+    usage: "Brukes om sm\u00e5 tilbakeblikk fra barndommen eller bestemte \u00f8yeblikk.",
+    type: "substantiv",
+    examples: ["P\u00e5 vei hjem fikk hun et glimtminne av skoleg\u00e5rden."],
+    see: "minne",
+  },
+  {
+    word: "lydskygge",
+    desc: "Et ekko som legger seg bak lyden og henger igjen.",
+    meaning: "En svak etterklang som henger igjen etter en lyd.",
+    usage: "Brukes om rom med lang etterklang eller n\u00e5r en lyd ligger i bakgrunnen.",
+    type: "substantiv",
+    examples: ["I kirken l\u00e5 en lydskygge lenge etter orgeltonen."],
+    see: "ekko",
+  },
+  {
+    word: "stillebry",
+    desc: "En rolig omsorg som ikke sies h\u00f8yt.",
+    meaning: "Still og varsom omsorg.",
+    usage: "Brukes om st\u00f8tte som vises uten store ord.",
+    type: "substantiv",
+    examples: ["Hun ga ham en stillebry med et lite nikk."],
+    see: "omsorg",
+  },
+  {
+    word: "gladtrass",
+    desc: "N\u00e5r man nekter \u00e5 gi opp, men smiler mens man gj\u00f8r det.",
+    meaning: "En sta vilje som ledsages av glede.",
+    usage: "Brukes n\u00e5r noen nekter \u00e5 gi opp, men gj\u00f8r det med smil.",
+    type: "substantiv",
+    examples: ["Hun m\u00f8tte motgangen med ren gladtrass."],
+    see: "trass",
+  },
+  {
+    word: "v\u00e6rlukt",
+    desc: "Duften i lufta som varsler at v\u00e6ret er p\u00e5 vei.",
+    meaning: "Lukt i lufta som varsler v\u00e6rskifte.",
+    usage: "Brukes om duften f\u00f8r regn, sn\u00f8 eller torden.",
+    type: "substantiv",
+    examples: ["Det l\u00e5 v\u00e6rlukt over fjorden."],
+    see: "regn",
+  },
+  {
+    word: "tankesl\u00f8r",
+    desc: "En t\u00e5ke av tanker som gj\u00f8r alt litt uklart.",
+    meaning: "Et uklart lag av tanker som gj\u00f8r det vanskelig \u00e5 fokusere.",
+    usage: "Brukes om mental t\u00e5ke eller distraksjon.",
+    type: "substantiv",
+    examples: ["Et tankesl\u00f8r la seg over henne etter en lang dag."],
+    see: "t\u00e5ke",
+  },
+  {
+    word: "raskro",
+    desc: "En kort pause som gir energi til neste runde.",
+    meaning: "En kort pause som gir ro og ny energi.",
+    usage: "Brukes om sm\u00e5 avbrekk i en travel dag.",
+    type: "substantiv",
+    examples: ["De tok en raskro f\u00f8r m\u00f8tet."],
+    see: "pause",
+  },
+  {
+    word: "taktbytte",
+    desc: "N\u00e5r du skifter tempo og rytme i det du gj\u00f8r.",
+    meaning: "Skifte i tempo eller rytme.",
+    usage: "Brukes om endring i arbeidsflyt, musikk eller aktivitet.",
+    type: "substantiv",
+    examples: ["Et tydelig taktbytte fikk publikum til \u00e5 v\u00e5kne."],
+    see: "tempo",
+  },
+  {
+    word: "kveldsvind",
+    desc: "En mild bris som varsler at dagen er p\u00e5 hell.",
+    meaning: "Mild bris som kommer n\u00e5r kvelden n\u00e6rmer seg.",
+    usage: "Brukes om sval luft i skumringen.",
+    type: "substantiv",
+    examples: ["Kveldsvind kj\u00f8lte ned terrassen."],
+    see: "bris",
+  },
+  {
+    word: "ordfloke",
+    desc: "N\u00e5r setningen roter seg til og du m\u00e5 starte p\u00e5 nytt.",
+    meaning: "En setning eller tanke som roter seg til.",
+    usage: "Brukes n\u00e5r ordene stokker seg eller blir uklare.",
+    type: "substantiv",
+    examples: ["Han lo av sin egen ordfloke."],
+    see: "kluss",
   }
 ];
