@@ -4,229 +4,90 @@ const TOTAL_QUESTIONS = 20;
 const SCORE_RIGHT = 10;
 const SCORE_WRONG = -5;
 
-const STORAGE_KEY = "vokabularspill_stats_v1";
-const PRACTICE_KEY = "vokabularspill_practice_list";
-
-function canUseStorage() {
-    try {
-        const key = "__vokabularspill_test__";
-        localStorage.setItem(key, "1");
-        localStorage.removeItem(key);
-        return true;
-    } catch {
-        return false;
-    }
+const storage = window.VokabulStorage;
+if (storage) {
+    storage.migrateStorageIfNeeded();
 }
+const storageAvailable = storage ? storage.canUseStorage() : false;
+const STORAGE_KEYS = storage ? storage.keys : null;
 
-const storageAvailable = canUseStorage();
+const STORAGE_KEY = STORAGE_KEYS
+    ? STORAGE_KEYS.VOKABULAR_STATS
+    : "vokabularspill_stats_v1";
+const PRACTICE_KEY = STORAGE_KEYS
+    ? STORAGE_KEYS.VOKABULAR_PRACTICE
+    : "vokabularspill_practice_list";
+const ATTEMPT_KEY = STORAGE_KEYS
+    ? STORAGE_KEYS.VOKABULAR_ATTEMPTS
+    : "vokabularspill_attempts";
+const ATTEMPT_LIMIT = 200;
 
 function loadStats() {
     if (!storageAvailable) {
         return { bestScore: 0, lastScore: 0, lastCorrect: 0, lastWrong: 0 };
     }
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) {
+    const parsed =
+        storage && storage.readJson
+            ? storage.readJson(STORAGE_KEY, null)
+            : null;
+    if (!parsed) {
         return { bestScore: 0, lastScore: 0, lastCorrect: 0, lastWrong: 0 };
     }
-    try {
-        const parsed = JSON.parse(raw);
-        return {
-            bestScore: Number(parsed.bestScore) || 0,
-            lastScore: Number(parsed.lastScore) || 0,
-            lastCorrect: Number(parsed.lastCorrect) || 0,
-            lastWrong: Number(parsed.lastWrong) || 0,
-        };
-    } catch {
-        return { bestScore: 0, lastScore: 0, lastCorrect: 0, lastWrong: 0 };
-    }
+    return {
+        bestScore: Number(parsed.bestScore) || 0,
+        lastScore: Number(parsed.lastScore) || 0,
+        lastCorrect: Number(parsed.lastCorrect) || 0,
+        lastWrong: Number(parsed.lastWrong) || 0,
+    };
 }
 
 function saveStats(stats) {
     if (!storageAvailable) return;
+    if (storage && storage.writeJson) {
+        storage.writeJson(STORAGE_KEY, stats);
+        return;
+    }
     localStorage.setItem(STORAGE_KEY, JSON.stringify(stats));
 }
 
 function loadPracticeList() {
     if (!storageAvailable) return [];
-    const raw = localStorage.getItem(PRACTICE_KEY);
-    if (!raw) return [];
-    try {
-        const parsed = JSON.parse(raw);
-        if (!Array.isArray(parsed)) return [];
-        return parsed
-            .map((item) => ({
-                index: Number(item.index),
-                wrongCount: Math.max(1, Number(item.wrongCount) || 1),
-            }))
-            .filter((item) => Number.isInteger(item.index) && WORDS[item.index]);
-    } catch {
-        return [];
-    }
+    const parsed =
+        storage && storage.readJson ? storage.readJson(PRACTICE_KEY, []) : [];
+    if (!Array.isArray(parsed)) return [];
+    return parsed
+        .map((item) => ({
+            index: Number(item.index),
+            wrongCount: Math.max(1, Number(item.wrongCount) || 1),
+        }))
+        .filter((item) => Number.isInteger(item.index) && WORDS[item.index]);
 }
 
 function savePracticeList(list) {
     if (!storageAvailable) return;
+    if (storage && storage.writeJson) {
+        storage.writeJson(PRACTICE_KEY, list);
+        return;
+    }
     localStorage.setItem(PRACTICE_KEY, JSON.stringify(list));
 }
 
-const WORDS = [
-    {
-        word: "ivrig",
-        correct: "full av interesse og lyst til \u00e5 gj\u00f8re noe",
-        wrong: [
-            "som beveger seg sakte og tungt",
-            "som er veldig gammel og sliten",
-            "som mangler energi og vilje",
-        ],
-        examples: ["Hun var ivrig etter \u00e5 starte prosjektet."],
-    },
-    {
-        word: "ambivalent",
-        correct: "ha motstridende f\u00f8lelser samtidig",
-        wrong: [
-            "helt uten f\u00f8lelser",
-            "som er lett \u00e5 forst\u00e5",
-            "som er stabil og uforanderlig",
-        ],
-        examples: ["Hun var ambivalent til tilbudet og utsatte svaret."],
-    },
-    {
-        word: "implisitt",
-        correct: "underforst\u00e5tt, ikke direkte sagt",
-        wrong: [
-            "uttrykt helt eksplisitt",
-            "un\u00f8dvendig komplisert",
-            "fullstendig tilfeldig",
-        ],
-        examples: ["Kritikken var implisitt, men alle forstod den."],
-    },
-    {
-        word: "konstituerende",
-        correct: "grunnleggende for at noe skal eksistere",
-        wrong: [
-            "uvanlig og tilfeldig",
-            "sekund\u00e6r og uviktig",
-            "motsatt av det som er mulig",
-        ],
-        examples: ["Tillit er konstituerende for et godt samarbeid."],
-    },
-    {
-        word: "epistemologisk",
-        correct: "som handler om erkjennelsesteori",
-        wrong: [
-            "som handler om f\u00f8lelser og hum\u00f8r",
-            "som gjelder fysisk styrke",
-            "som beskriver tilfeldigheter",
-        ],
-        examples: [
-            "Det er et epistemologisk sp\u00f8rsm\u00e5l hvordan vi vet dette.",
-        ],
-    },
-    {
-        word: "reduksjonistisk",
-        correct: "forenkle noe komplekst for mye",
-        wrong: [
-            "som er n\u00f8yaktig og detaljert",
-            "som legger til flere nyanser",
-            "som er helt tilfeldig valgt",
-        ],
-        examples: [
-            "Forklaringen var reduksjonistisk og overs\u00e5 viktige nyanser.",
-        ],
-    },
-    {
-        word: "apatisk",
-        correct: "likegyldig, f\u00f8lelsesmessig flat",
-        wrong: [
-            "overdrevent engasjert",
-            "full av glede",
-            "urolig og rastl\u00f8s",
-        ],
-        examples: ["Han virket apatisk og uten interesse."],
-    },
-    {
-        word: "affekt",
-        correct: "sterk, ofte kortvarig f\u00f8lelsesreaksjon",
-        wrong: [
-            "langvarig planlagt handling",
-            "en n\u00f8ytral tilstand uten f\u00f8lelser",
-            "en objektiv vurdering",
-        ],
-        examples: ["Hun handlet i affekt etter nyheten."],
-    },
-    {
-        word: "melankolsk",
-        correct: "dvelende tristhet, ofte uten klar \u00e5rsak",
-        wrong: ["kortvarig irritasjon", "overstadig glede", "spontan latter"],
-        examples: ["Stemningen var melankolsk den kvelden."],
-    },
-    {
-        word: "ambigu\u00f8s",
-        correct: "tvetydig, kan tolkes p\u00e5 flere m\u00e5ter",
-        wrong: ["helt klar og entydig", "uvanlig enkel", "uten betydning"],
-        examples: ["Formuleringen var ambigu\u00f8s og skapte usikkerhet."],
-    },
-    {
-        word: "dissonans",
-        correct: "indre konflikt mellom tanker, verdier eller handlinger",
-        wrong: [
-            "fullstendig harmoni",
-            "ytre ro uten spenning",
-            "mangel p\u00e5 refleksjon",
-        ],
-        examples: ["Hun kjente en dissonans mellom verdier og praksis."],
-    },
-    {
-        word: "forbeholden",
-        correct: "tilbakeholden, forsiktig i uttrykk eller holdning",
-        wrong: [
-            "sv\u00e6rt utadvendt",
-            "impulsiv og uoverveid",
-            "fullstendig uinteressert",
-        ],
-        examples: ["Han var forbeholden i vurderingen sin."],
-    },
-    {
-        word: "p\u00e5skj\u00f8nnelse",
-        correct: "anerkjennelse eller bel\u00f8nning",
-        wrong: [
-            "kritikk uten grunnlag",
-            "en tilfeldig hendelse",
-            "en streng straff",
-        ],
-        examples: ["Hun fikk p\u00e5skj\u00f8nnelse for innsatsen."],
-    },
-    {
-        word: "sammenfallende",
-        correct: "som inntreffer samtidig eller stemmer overens",
-        wrong: [
-            "som skjer helt uavhengig",
-            "som er motstridende",
-            "som er ubetydelig",
-        ],
-        examples: ["Observasjonene var sammenfallende."],
-    },
-    {
-        word: "uforholdsmessig",
-        correct: "ikke i rimelig forhold til noe annet",
-        wrong: [
-            "n\u00f8ye avpasset og riktig",
-            "helt tilfeldig og ubegrunnet",
-            "uten noen konsekvenser",
-        ],
-        examples: ["Reaksjonen var uforholdsmessig sterk."],
-    },
-    {
-        word: "ubesudlet",
-        correct: "ur\u00f8rt, uten negativ p\u00e5virkning",
-        wrong: [
-            "tilsmusset og skadet",
-            "sterkt forandret",
-            "ikke lenger gyldig",
-        ],
-        examples: ["Omr\u00e5det var ubesudlet av inngrep."],
-    },
-];
+function recordAttempt(entry, option, isCorrect) {
+    if (!storageAvailable || !storage || !storage.appendToList) return;
+    storage.appendToList(
+        ATTEMPT_KEY,
+        {
+            word: entry.word,
+            chosen: option?.text || "",
+            correctAnswer: entry.correct,
+            correct: Boolean(isCorrect),
+            timestamp: Date.now(),
+        },
+        ATTEMPT_LIMIT,
+    );
+}
+
+const WORDS = window.VokabulWordSets?.vokabularspill?.words || [];
 
 const el = {
     screenStart: document.getElementById("screenStart"),
@@ -449,6 +310,7 @@ function handleAnswer(option, btn) {
     buttons.forEach((b) => {
         if (b.textContent === correctText) b.classList.add("correct");
     });
+    recordAttempt(entry, option, option.correct);
 
     if (option.correct) {
         btn.classList.add("correct");
@@ -669,3 +531,5 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 });
+
+

@@ -1,4 +1,5 @@
-export const nouns = [
+window.VokabulWordsData = window.VokabulWordsData || {};
+window.VokabulWordsData.nouns = [
   {
     word: "obskurantisme",
     desc: "Bevisst uklar tale eller praksis som gj\u00f8r innsikt vanskelig.",

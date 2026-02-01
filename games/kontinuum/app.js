@@ -1,55 +1,35 @@
 const { useEffect, useMemo, useState } = React;
 
-const LEVELS = [
-    {
-        startAnchor: "Iskald",
-        endAnchor: "Kokende",
-        middleWords: ["Kj\u00f8lig", "Lunkent", "Varmt"],
-    },
-    {
-        startAnchor: "Ubetydelig",
-        endAnchor: "Eksistensielt",
-        middleWords: ["Viktig", "Sentralt", "Kritisk"],
-    },
-    {
-        startAnchor: "Glimt",
-        endAnchor: "Flomlys",
-        middleWords: ["Lys", "Skinn", "Str\u00e5le"],
-    },
-];
+const LEVELS = window.VokabulWordSets?.kontinuum?.levels || [];
 
-const STORAGE_KEY = "kontinuum_stats_v1";
-
-function canUseStorage() {
-    try {
-        const key = "__kontinuum_test__";
-        localStorage.setItem(key, "1");
-        localStorage.removeItem(key);
-        return true;
-    } catch {
-        return false;
-    }
+const storage = window.VokabulStorage;
+if (storage) {
+    storage.migrateStorageIfNeeded();
 }
+const storageAvailable = storage ? storage.canUseStorage() : false;
+const STORAGE_KEYS = storage ? storage.keys : null;
 
-const storageAvailable = canUseStorage();
+const STORAGE_KEY = STORAGE_KEYS
+    ? STORAGE_KEYS.KONTINUUM_STATS
+    : "kontinuum_stats_v1";
 
 function loadStats() {
     if (!storageAvailable) return { best: 0, last: 0 };
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return { best: 0, last: 0 };
-    try {
-        const parsed = JSON.parse(raw);
-        return {
-            best: Number(parsed.best) || 0,
-            last: Number(parsed.last) || 0,
-        };
-    } catch {
-        return { best: 0, last: 0 };
-    }
+    const parsed =
+        storage && storage.readJson ? storage.readJson(STORAGE_KEY, null) : null;
+    if (!parsed) return { best: 0, last: 0 };
+    return {
+        best: Number(parsed.best) || 0,
+        last: Number(parsed.last) || 0,
+    };
 }
 
 function saveStats(stats) {
     if (!storageAvailable) return;
+    if (storage && storage.writeJson) {
+        storage.writeJson(STORAGE_KEY, stats);
+        return;
+    }
     localStorage.setItem(STORAGE_KEY, JSON.stringify(stats));
 }
 
@@ -314,3 +294,5 @@ function KontinuumApp() {
 
 const root = ReactDOM.createRoot(document.getElementById("app"));
 root.render(React.createElement(KontinuumApp));
+
+
