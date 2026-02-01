@@ -821,6 +821,7 @@ function storeQuickGuessState(todayKey, status) {
 function loadQuickGuess() {
   const clueEl = document.getElementById("quick-clue");
   const slotsEl = document.getElementById("quick-slots");
+  const inputEl = document.getElementById("quick-input");
   const buttonEl = document.getElementById("quick-check");
   const revealEl = document.getElementById("quick-reveal");
   const resetEl = document.getElementById("quick-reset");
@@ -839,6 +840,35 @@ function loadQuickGuess() {
   let isLocked = false;
   let relatedModal = null;
   let lastFocus = null;
+  const validLetter = /[a-zA-ZæøåÆØÅ]/;
+  if (inputEl) {
+    inputEl.setAttribute("maxlength", String(answerLetters.length));
+  }
+
+  const sanitizeInput = (value) => {
+    return Array.from(value || "")
+      .filter((char) => validLetter.test(char))
+      .join("")
+      .toLowerCase();
+  };
+
+  const syncInputValue = () => {
+    if (!inputEl) {
+      return;
+    }
+    const value = guessLetters.join("");
+    if (inputEl.value !== value) {
+      inputEl.value = value;
+    }
+    if (document.activeElement === inputEl) {
+      const end = inputEl.value.length;
+      try {
+        inputEl.setSelectionRange(end, end);
+      } catch (error) {
+        return;
+      }
+    }
+  };
 
   const relatedWordDetails = {
     minne: {
@@ -1164,6 +1194,7 @@ function loadQuickGuess() {
       }
       slotsEl.appendChild(slot);
     });
+    syncInputValue();
   };
 
   const lockInput = () => {
@@ -1171,6 +1202,9 @@ function loadQuickGuess() {
     slotsEl.classList.add("is-locked");
     slotsEl.setAttribute("aria-disabled", "true");
     slotsEl.setAttribute("tabindex", "-1");
+    if (inputEl) {
+      inputEl.setAttribute("disabled", "true");
+    }
     buttonEl.style.display = "none";
     revealEl.style.display = "none";
   };
@@ -1180,6 +1214,9 @@ function loadQuickGuess() {
     slotsEl.classList.remove("is-locked");
     slotsEl.removeAttribute("aria-disabled");
     slotsEl.setAttribute("tabindex", "0");
+    if (inputEl) {
+      inputEl.removeAttribute("disabled");
+    }
     buttonEl.style.display = "";
     revealEl.style.display = "";
   };
@@ -1253,7 +1290,7 @@ function loadQuickGuess() {
       return;
     }
 
-    if (event.key.length === 1 && /[a-zA-ZæøåÆØÅ]/.test(event.key)) {
+    if (event.key.length === 1 && validLetter.test(event.key)) {
       const nextIndex = guessLetters.indexOf("");
       if (nextIndex !== -1) {
         guessLetters[nextIndex] = event.key.toLowerCase();
@@ -1263,10 +1300,42 @@ function loadQuickGuess() {
     }
   };
 
+  const handleInput = () => {
+    if (!inputEl || isLocked) {
+      return;
+    }
+    const cleaned = sanitizeInput(inputEl.value).slice(0, guessLetters.length);
+    const nextLetters = Array.from(cleaned);
+    for (let i = 0; i < guessLetters.length; i += 1) {
+      guessLetters[i] = nextLetters[i] || "";
+    }
+    renderSlots();
+    if (nextLetters.length === guessLetters.length) {
+      checkGuess();
+    }
+  };
+
+  const focusInput = () => {
+    if (inputEl && !isLocked) {
+      inputEl.focus({ preventScroll: true });
+      return;
+    }
+    slotsEl.focus();
+  };
+
   buttonEl.addEventListener("click", checkGuess);
   slotsEl.addEventListener("keydown", handleKey);
-  slotsEl.addEventListener("click", () => slotsEl.focus());
+  slotsEl.addEventListener("click", focusInput);
   resetEl.addEventListener("click", resetGuess);
+  if (inputEl) {
+    inputEl.addEventListener("input", handleInput);
+    inputEl.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        checkGuess();
+      }
+    });
+  }
 
   revealEl.addEventListener("click", () => {
     storeQuickGuessState(todayKey, "revealed");
