@@ -1,6 +1,7 @@
-import { nouns } from "./nouns.js";
-import { adjectives } from "./adjectives.js";
-import { verbs } from "./verbs.js";
+const data = window.VokabulWordsData || {};
+const nouns = data.nouns || [];
+const adjectives = data.adjectives || [];
+const verbs = data.verbs || [];
 
 // Preserve the original daily rotation order while grouping by word class.
 const allWords = [
@@ -10,7 +11,12 @@ const allWords = [
   ...verbs
 ];
 
-export { adjectives, allWords, nouns, verbs };
+const exported = {
+  adjectives,
+  allWords,
+  nouns,
+  verbs
+};
 
 const dailySynonymDetails = {
   mystifisering: {
@@ -318,7 +324,7 @@ const quickGuessWords = [
   }
 ];
 
-export function getDailyWord(date, words = allWords) {
+function getDailyWord(date, words = allWords) {
   const daysSinceEpoch = Math.floor(date.getTime() / 86400000);
   return words[daysSinceEpoch % words.length];
 }
@@ -674,7 +680,7 @@ const closeWordClassModal = () => {
   }
 };
 
-export function loadDailyWord() {
+function loadDailyWord() {
   const titleEl = document.getElementById("word-title");
   const descEl = document.getElementById("word-desc");
   const examplesEl = document.getElementById("word-examples");
@@ -761,7 +767,11 @@ function normalizeGuess(value) {
   return value.toLowerCase().trim().replace(/\s+/g, "");
 }
 
-const quickGuessStorageKey = "vokabulQuickGuess";
+const storage = window.VokabulStorage;
+if (storage) {
+  storage.migrateStorageIfNeeded();
+}
+const quickGuessStorageKey = storage?.keys?.QUICK_GUESS || "vokabulQuickGuess";
 
 function getTodayKey(date) {
   return date.toISOString().slice(0, 10);
@@ -769,11 +779,16 @@ function getTodayKey(date) {
 
 function loadQuickGuessState(todayKey) {
   try {
-    const raw = localStorage.getItem(quickGuessStorageKey);
-    if (!raw) {
+    let data = null;
+    if (storage?.readJson) {
+      data = storage.readJson(quickGuessStorageKey, null);
+    } else {
+      const raw = localStorage.getItem(quickGuessStorageKey);
+      data = raw ? JSON.parse(raw) : null;
+    }
+    if (!data) {
       return null;
     }
-    const data = JSON.parse(raw);
     if (data && data.date === todayKey && (data.status === "solved" || data.status === "revealed")) {
       return data;
     }
@@ -786,7 +801,15 @@ function loadQuickGuessState(todayKey) {
 function storeQuickGuessState(todayKey, status) {
   try {
     if (!status) {
-      localStorage.removeItem(quickGuessStorageKey);
+      if (storage?.remove) {
+        storage.remove(quickGuessStorageKey);
+      } else {
+        localStorage.removeItem(quickGuessStorageKey);
+      }
+      return;
+    }
+    if (storage?.writeJson) {
+      storage.writeJson(quickGuessStorageKey, { date: todayKey, status });
       return;
     }
     localStorage.setItem(quickGuessStorageKey, JSON.stringify({ date: todayKey, status }));
@@ -795,7 +818,7 @@ function storeQuickGuessState(todayKey, status) {
   }
 }
 
-export function loadQuickGuess() {
+function loadQuickGuess() {
   const clueEl = document.getElementById("quick-clue");
   const slotsEl = document.getElementById("quick-slots");
   const buttonEl = document.getElementById("quick-check");
@@ -1263,3 +1286,13 @@ export function loadQuickGuess() {
 
   renderSlots();
 }
+
+window.VokabulWords = {
+  ...exported,
+  getDailyWord,
+  loadDailyWord,
+  loadQuickGuess
+};
+
+loadDailyWord();
+loadQuickGuess();

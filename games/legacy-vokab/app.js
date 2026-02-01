@@ -1,135 +1,27 @@
 // Vokabularspill – flervalg + enkel spaced repetition (Leitner light)
 // Lagres i localStorage. Bytt gjerne ut ORD-listen med dine egne ord.
 
-const ORD = [
-    {
-        no: "å forutse",
-        en: "to anticipate",
-        forklaring: "Å forvente noe før det skjer; å regne med.",
-        eksempel: "Hun klarte å forutse problemene før de oppstod.",
-    },
-    {
-        no: "forgjengelig",
-        en: "ephemeral",
-        forklaring: "Som varer kort tid; ikke varig.",
-        eksempel: "Kunstverket var vakkert, men forgjengelig.",
-    },
-    {
-        no: "innskytelse",
-        en: "impulse",
-        forklaring: "Plutselig tanke eller trang til å gjøre noe.",
-        eksempel: "På en innskytelse kjøpte han billetten.",
-    },
-    {
-        no: "uoverensstemmelse",
-        en: "discrepancy",
-        forklaring: "Mangel på samsvar; avvik.",
-        eksempel: "Det var en uoverensstemmelse i regnskapet.",
-    },
-    {
-        no: "ubøyelig",
-        en: "unyielding",
-        forklaring: "Som ikke lar seg påvirke eller endre.",
-        eksempel: "Han var ubøyelig i forhandlingene.",
-    },
-    {
-        no: "forbause",
-        en: "to astonish",
-        forklaring: "Å overraske eller undre sterkt.",
-        eksempel: "Det skulle forbause meg om hun sa nei.",
-    },
-    {
-        no: "gjennomgripende",
-        en: "far-reaching",
-        forklaring: "Som påvirker mye og dypt; vidtrekkende.",
-        eksempel: "Reformen fikk gjennomgripende konsekvenser.",
-    },
-    {
-        no: "uhildet",
-        en: "impartial",
-        forklaring: "Upartisk; uten interessekonflikt.",
-        eksempel: "Vi trenger en uhildet vurdering.",
-    },
-    {
-        no: "åpenbar",
-        en: "evident",
-        forklaring: "Tydelig og lett å se; klar.",
-        eksempel: "Det er åpenbart at planen må endres.",
-    },
-    {
-        no: "vedvarende",
-        en: "persistent",
-        forklaring: "Noe som fortsetter over tid uten å gi seg.",
-        eksempel: "Han hadde en vedvarende hoste i flere uker.",
-    },
-    {
-        no: "tvetydig",
-        en: "ambiguous",
-        forklaring: "Kan forstås på flere måter; uklar.",
-        eksempel: "Svaret hans var tvetydig og skapte mer forvirring.",
-    },
-    {
-        no: "å avkrefte",
-        en: "to refute",
-        forklaring: "Å motbevise; vise at noe ikke stemmer.",
-        eksempel: "Forskerne avkrefter påstanden med nye data.",
-    },
-    {
-        no: "grundig",
-        en: "thorough",
-        forklaring: "Svært nøye og detaljert.",
-        eksempel: "Vi gjorde en grundig gjennomgang av tallene.",
-    },
-    {
-        no: "sammenheng",
-        en: "context",
-        forklaring: "Rammen rundt noe som gir mening og forståelse.",
-        eksempel: "I riktig sammenheng gir setningen mening.",
-    },
-    {
-        no: "å styrke",
-        en: "to strengthen",
-        forklaring: "Å gjøre sterkere; forbedre eller forsterke.",
-        eksempel: "Tiltaket kan styrke økonomien på sikt.",
-    },
-    {
-        no: "motstridende",
-        en: "conflicting",
-        forklaring: "Som står i konflikt; motsier hverandre.",
-        eksempel: "Rapportene ga motstridende informasjon.",
-    },
-    {
-        no: "å utlede",
-        en: "to infer",
-        forklaring: "Å konkludere basert på informasjon/tegn.",
-        eksempel: "Vi kan utlede årsaken fra symptomene.",
-    },
-    {
-        no: "fremtredende",
-        en: "prominent",
-        forklaring: "Tydelig, kjent eller viktig; står fram.",
-        eksempel: "Hun er en fremtredende forsker på feltet.",
-    },
-];
+const ORD = window.VokabulWordSets?.legacyVokab?.words || [];
 
 // --- Lagring / progresjon ---
-const KEY = "vokabularspill_v1";
-
-function kanBrukeLagring() {
-    try {
-        const testKey = "__vokabularspill_test__";
-        localStorage.setItem(testKey, "1");
-        localStorage.removeItem(testKey);
-        return true;
-    } catch {
-        return false;
-    }
+const storage = window.VokabulStorage;
+if (storage) {
+    storage.migrateStorageIfNeeded();
 }
+const harLagring = storage ? storage.canUseStorage() : false;
+const STORAGE_KEYS = storage ? storage.keys : null;
 
-const harLagring = kanBrukeLagring();
+const KEY = STORAGE_KEYS ? STORAGE_KEYS.LEGACY_STATE : "vokabularspill_v1";
+const ATTEMPT_KEY = STORAGE_KEYS
+    ? STORAGE_KEYS.LEGACY_ATTEMPTS
+    : "legacy_vokab_attempts";
+const ATTEMPT_LIMIT = 200;
 
 function lastState() {
     if (!harLagring) return null;
+    if (storage && storage.readJson) {
+        return storage.readJson(KEY, null);
+    }
     const raw = localStorage.getItem(KEY);
     if (!raw) return null;
     try {
@@ -141,7 +33,26 @@ function lastState() {
 
 function lagreState(state) {
     if (!harLagring) return;
+    if (storage && storage.writeJson) {
+        storage.writeJson(KEY, state);
+        return;
+    }
     localStorage.setItem(KEY, JSON.stringify(state));
+}
+
+function loggForsok(ordData, retning, valgtTekst, riktig) {
+    if (!harLagring || !storage || !storage.appendToList) return;
+    storage.appendToList(
+        ATTEMPT_KEY,
+        {
+            word: ordData.no,
+            direction: retning,
+            chosen: valgtTekst,
+            correct: Boolean(riktig),
+            timestamp: Date.now(),
+        },
+        ATTEMPT_LIMIT,
+    );
 }
 
 function defaultState() {
@@ -345,6 +256,9 @@ function svar(valgtIndex, valgtBtn) {
 
     const i = gjeldende.index;
     const prog = state.progresjon[i];
+    const valgtTekst =
+        gjeldende.retning === "no-en" ? ORD[valgtIndex].en : ORD[valgtIndex].no;
+    loggForsok(ORD[i], gjeldende.retning, valgtTekst, riktig);
 
     // marker knapper
     const buttons = [...el.valg.querySelectorAll(".choice")];
@@ -428,3 +342,5 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     el.nivaa.addEventListener("change", visSporsmal);
 });
+
+

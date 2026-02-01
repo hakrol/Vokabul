@@ -1,4 +1,5 @@
-export const adjectives = [
+window.VokabulWordsData = window.VokabulWordsData || {};
+window.VokabulWordsData.adjectives = [
   {
     word: "apatisk",
     desc: "Preget av likegyldighet og mangel p\u00e5 engasjement.",
